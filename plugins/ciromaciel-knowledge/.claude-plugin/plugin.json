@@ -1,0 +1,9 @@
+{
+  "name": "ciromaciel-knowledge",
+  "version": "0.1.0",
+  "description": "Conexões MCP e ferramentas de pesquisa: Linear, Notion, KB próprio.",
+  "author": {
+    "name": "Ciro Maciel"
+  },
+  "keywords": ["mcp", "knowledge", "research"]
+}

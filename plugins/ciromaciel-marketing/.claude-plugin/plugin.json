@@ -1,0 +1,9 @@
+{
+  "name": "ciromaciel-marketing",
+  "version": "0.1.0",
+  "description": "Agentes e skills de marketing/GTM: extração de brand voice, visual identity e geração de campaign briefs.",
+  "author": {
+    "name": "Ciro Maciel"
+  },
+  "keywords": ["marketing", "gtm", "brand", "campaigns", "riligar"]
+}

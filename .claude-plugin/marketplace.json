@@ -1,0 +1,28 @@
+{
+  "name": "ciromacielos",
+  "owner": {
+    "name": "Ciro Maciel",
+    "email": "maciel.ciro@icloud.com"
+  },
+  "metadata": {
+    "description": "ciromacielOS — agentes, skills, comandos e MCPs reutilizáveis em todos os projetos pessoais e RiLiGar.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "ciromaciel-marketing",
+      "source": "./plugins/ciromaciel-marketing",
+      "description": "Agentes e skills de marketing/GTM: brand voice, visual identity e campaign briefs."
+    },
+    {
+      "name": "ciromaciel-dev",
+      "source": "./plugins/ciromaciel-dev",
+      "description": "Agentes e skills de desenvolvimento: SEO, performance, auditorias para templates RiLiGar."
+    },
+    {
+      "name": "ciromaciel-knowledge",
+      "source": "./plugins/ciromaciel-knowledge",
+      "description": "Conexões MCP (Linear, Notion, KB próprio) e ferramentas de pesquisa."
+    }
+  ]
+}
