@@ -15,8 +15,8 @@
       "description": "Agentes e skills de marketing/GTM: brand voice, visual identity e campaign briefs."
     },
     {
-      "name": "ciromaciel-dev",
-      "source": "./plugins/ciromaciel-dev",
+      "name": "ciromaciel-development",
+      "source": "./plugins/ciromaciel-development",
       "description": "Agentes e skills de desenvolvimento: SEO, performance, auditorias para templates RiLiGar."
     },
     {

@@ -1,4 +1,4 @@
-# ciromaciel-dev
+# ciromaciel-development
 
 Agentes e skills de desenvolvimento, focados em templates RiLiGar (Vue + Vite) e sites pessoais.
 

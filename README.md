@@ -7,7 +7,7 @@ Marketplace pessoal de plugins do Claude Code. Agentes, skills, comandos e MCPs 
 | Plugin | O que faz |
 |--------|-----------|
 | [`ciromaciel-marketing`](plugins/ciromaciel-marketing/) | Marketing/GTM: brand voice, visual identity, campaign briefs, ICP research |
-| [`ciromaciel-dev`](plugins/ciromaciel-dev/) | Dev: SEO, performance, auditorias para templates RiLiGar |
+| [`ciromaciel-development`](plugins/ciromaciel-development/) | Dev: SEO, performance, auditorias para templates RiLiGar |
 | [`ciromaciel-knowledge`](plugins/ciromaciel-knowledge/) | MCPs e ferramentas de pesquisa (Linear, Notion, KB próprio) |
 
 ## Como usar
@@ -24,11 +24,11 @@ Marketplace pessoal de plugins do Claude Code. Agentes, skills, comandos e MCPs 
 
 ```bash
 /plugin install ciromaciel-marketing@ciromacielos
-/plugin install ciromaciel-dev@ciromacielos
+/plugin install ciromaciel-development@ciromacielos
 /plugin install ciromaciel-knowledge@ciromacielos
 ```
 
-Você pode escolher só os que fazem sentido — projeto de marketing puro não precisa do `ciromaciel-dev`.
+Você pode escolher só os que fazem sentido — projeto de marketing puro não precisa do `ciromaciel-development`.
 
 ### 3. Pronto
 
@@ -46,7 +46,7 @@ ciromacielOS/                          ← este repo (marketplace)
     │   ├── agents/   ← especialistas com contexto isolado
     │   ├── skills/   ← playbooks que auto-disparam
     │   └── commands/ ← /comandos disparados pelo usuário
-    ├── ciromaciel-dev/
+    ├── ciromaciel-development/
     └── ciromaciel-knowledge/
         └── .mcp.json                  ← servidores MCP
 ```
