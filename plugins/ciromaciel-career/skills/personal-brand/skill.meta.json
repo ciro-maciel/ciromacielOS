@@ -1,0 +1,9 @@
+{
+  "slug": "personal-brand",
+  "category": "brand",
+  "tags": ["career", "brand", "peters", "newport", "naval"],
+  "installation": {
+    "base_command": "npx goose-skills install personal-brand",
+    "supports": ["claude", "cursor", "codex"]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "slug": "network-builder",
+  "category": "network",
+  "tags": ["career", "network", "granovetter", "kram"],
+  "installation": {
+    "base_command": "npx goose-skills install network-builder",
+    "supports": ["claude", "cursor", "codex"]
+  }
+}

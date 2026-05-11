@@ -1,0 +1,9 @@
+{
+  "name": "ciromaciel-recruiting",
+  "version": "0.1.0",
+  "description": "Fluxo completo de agência de recrutamento (ATS): intake → sourcing → screening → assessment → interviews → references → offer → handoff → analytics. Multi-cliente, com scorecard estruturado e mitigação de viés embutida.",
+  "author": {
+    "name": "Ciro Maciel"
+  },
+  "keywords": ["recruiting", "ats", "hiring", "sourcing", "interviews", "talent"]
+}

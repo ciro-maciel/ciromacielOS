@@ -1,0 +1,9 @@
+{
+  "name": "ciromaciel-career",
+  "version": "0.1.0",
+  "description": "Planejamento de carreira completo — discovery → diagnóstico → visão (BHAG) → plano (OKRs) → execução → medição → revisão → pivot. Baseado em pesquisa (Schein, Locke-Latham, Ericsson, Granovetter, Doerr, Collins, Munger, Newport).",
+  "author": {
+    "name": "Ciro Maciel"
+  },
+  "keywords": ["career", "planning", "okr", "deliberate-practice", "personal-development", "riligar"]
+}

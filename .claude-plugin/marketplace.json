@@ -23,6 +23,11 @@
       "name": "ciromaciel-knowledge",
       "source": "./plugins/ciromaciel-knowledge",
       "description": "Conexões MCP (Linear, Notion, KB próprio) e ferramentas de pesquisa."
+    },
+    {
+      "name": "ciromaciel-career",
+      "source": "./plugins/ciromaciel-career",
+      "description": "Planejamento de carreira completo — discovery, BHAG, OKRs trimestrais nos 5 vetores (skill, rede, marca, saúde, capital), weekly review, pivot. Baseado em pesquisa (Schein, Doerr, Ericsson, Granovetter, Collins, Newport)."
     }
   ]
 }
