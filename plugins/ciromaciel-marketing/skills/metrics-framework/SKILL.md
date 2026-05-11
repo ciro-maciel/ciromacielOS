@@ -23,6 +23,15 @@ Run AFTER the campaign ends. Output: `clients/<name>/campaigns/<campaign>-retro.
 
 If the user is ambiguous, ask which mode. Don't guess.
 
+## Companion skills
+
+This skill defines the STRATEGY of measurement (north star, floor, decision gates). For platform-specific detail, use:
+
+- **`platform-analytics`** — what to measure on TikTok / IG / Meta Ads / YouTube / Google Ads / LinkedIn Ads. Benchmarks per platform, vanity vs actionable.
+- **`tracking-setup`** — UTM convention, Meta Pixel + CAPI, GA4 conversions, CRM source field. Setup checklist BEFORE running campaigns.
+
+For recurring weekly/monthly cross-platform reports, use the `/report` command — different from this skill's mode B (single retro at campaign end).
+
 ---
 
 ## Mode A — Define KPIs
@@ -49,33 +58,43 @@ The north star must:
 
 ### Step 3 — KPIs per stage
 
-For each funnel stage:
+For each funnel stage, write KPIs **per platform** (not abstract). Use the `platform-analytics` skill to know what to track and what's a reasonable benchmark per platform.
 
 ```markdown
 ### TOFU
 
-| Metric | Target | Floor (campaign fails below) | Source |
-|--------|--------|------------------------------|--------|
-| LinkedIn impressions | 50,000 | 20,000 | LinkedIn Analytics |
-| Cold email opens | 35% open rate | 20% | Smartlead |
+| Platform | Metric | Target | Floor (campaign fails below) | Source |
+|----------|--------|--------|------------------------------|--------|
+| LinkedIn (founder) | Impressions | 50,000 | 20,000 | LinkedIn Analytics |
+| TikTok | Completion rate (avg) | >50% | 35% | TikTok Studio |
+| Meta Ads | Hook rate (3s) | >25% | 15% | Ads Manager |
+| YouTube | CTR | 5% | 3% | YouTube Studio |
+| Cold email | Open rate | 35% | 20% | Smartlead |
 ```
 
 **Always include a "floor"** — the number below which the campaign is considered to have failed on this dimension. Without a floor, retros become "well, we got SOMETHING."
 
+**Don't use the same metric for every platform.** YouTube's CTR ≠ LinkedIn's CTR ≠ Meta's CTR. Each has its own scale. Use platform-analytics for the right metric per platform.
+
 ### Step 4 — Tracking plan
 
-Before campaign starts, what must be instrumented?
+Before campaign starts, what must be instrumented? **Delegate to the `tracking-setup` skill for the full checklist** (6 layers — UTM, GA4, Pixel+CAPI, Google Ads conv, CRM, dashboard).
+
+Minimum reference here:
 
 ```markdown
-## Tracking plan
+## Tracking plan (resumido — full check em tracking-setup)
 
-- [ ] UTM parameters defined and documented (utm-template.md)
-- [ ] CRM source field captures lead origin
-- [ ] Smartlead campaign tagged
-- [ ] LinkedIn UTM destination = landing page
-- [ ] Conversion event fires on signup / demo booking
-- [ ] Weekly review meeting scheduled (every Friday 4pm)
+- [ ] UTM template do cliente atualizado e seguido em todos os links
+- [ ] GA4 com conversions marcadas e conversion value real (não "1")
+- [ ] Meta Pixel + CAPI ativos (EMQ > 7)
+- [ ] Google Ads importando conversions do GA4 + Enhanced Conversions
+- [ ] CRM populando source/medium/campaign automaticamente
+- [ ] Looker Studio (ou equivalente) com acesso pros stakeholders
+- [ ] Weekly review agendado
 ```
+
+Se algum item não vai dar pra fazer pra esta campanha, documente em `tracking-gaps.md` — não finja que está medido.
 
 ### Step 5 — Reporting cadence
 

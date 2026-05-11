@@ -51,10 +51,14 @@ Pergunte ao usuário quais ferramentas ele usa antes de exportar — não gere C
 
 ## Próximo passo
 
-Sugira `/measure` para definir KPIs e template de retrospectiva ANTES da campanha rodar (não depois).
+Em sequência:
+1. `/measure` (modo A) — defina KPIs e tracking plan **antes** da campanha rodar
+2. `/publish` — execute a publicação item-por-item com review gate (Claude não publica sem você aprovar cada peça)
+3. `/measure` (modo B) — retro depois que a campanha terminar
 
 ## Não faça
 
-- Não publique nada (você não tem acesso a Buffer/Smartlead) — só prepare
+- Não publique nada aqui — este command só prepara o plano. Publicação é `/publish` (com review gate humano)
 - Não monte calendar sem o brief ter "início" e "fim" definidos
 - Não ignore fuso horário do ICP (post de LinkedIn às 3am não funciona)
+- Não esqueça da coluna `Status` em cada linha (default `pending`) — sem ela, `/publish` não rastreia

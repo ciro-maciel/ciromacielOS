@@ -75,6 +75,8 @@ If client doesn't have multiple owners → assign founder to high-leverage asset
 
 ## Output 1 — Master calendar
 
+The calendar is the source of truth for `/publish` — every row needs a **Status** column so publish can track what's done.
+
 ```markdown
 # Calendar — <campaign>
 Campaign window: <start> → <end>
@@ -82,15 +84,22 @@ Timezone: <TZ>
 
 ## Week 1
 
-| Date | Time | Channel | Asset | Owner | Notes |
-|------|------|---------|-------|-------|-------|
-| Mon Mar 3 | 8am | LinkedIn (founder) | post-01.md | Ciro | Warmup before cold email Wed |
-| Tue Mar 4 | 9am | Blog | blog-01.md | Marketing | Goes live + LinkedIn share |
-| Wed Mar 5 | 7am | Smartlead | emails/01-cold-open.md | SDR | ICP segment A (300 contacts) |
-| ... | ... | ... | ... | ... | ... |
+| Date | Time | Channel | Asset | Owner | Status | Notes |
+|------|------|---------|-------|-------|--------|-------|
+| Mon Mar 3 | 8am | LinkedIn (founder) | post-01.md | Ciro | pending | Warmup before cold email Wed |
+| Tue Mar 4 | 9am | Blog | blog-01.md | Marketing | pending | Goes live + LinkedIn share |
+| Wed Mar 5 | 7am | Smartlead | emails/01-cold-open.md | SDR | pending | ICP segment A (300 contacts) |
+| ... | ... | ... | ... | ... | ... | ... |
 
 ## Week 2 ...
 ```
+
+**Status values** (managed by `/publish`):
+- `pending` — not yet published (initial state)
+- `published <timestamp>` — went live
+- `scheduled <timestamp>` — queued in tool (Buffer, ESP) but not posted yet
+- `skipped <reason>` — user chose to skip
+- `edited` — user requested changes; back to pending after re-approval
 
 ## Output 2 — Sequencing rationale
 
