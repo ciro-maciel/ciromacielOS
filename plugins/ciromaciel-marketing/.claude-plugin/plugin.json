@@ -1,7 +1,7 @@
 {
   "name": "ciromaciel-marketing",
-  "version": "0.1.0",
-  "description": "Agentes e skills de marketing/GTM: extração de brand voice, visual identity e geração de campaign briefs.",
+  "version": "0.2.0",
+  "description": "Fluxo completo de agência de marketing: discovery, research, strategy, campaign, execute, distribute, measure. Suporta SaaS e serviços.",
   "author": {
     "name": "Ciro Maciel"
   },

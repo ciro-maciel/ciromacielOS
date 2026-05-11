@@ -1,0 +1,15 @@
+{
+  "slug": "metrics-framework",
+  "category": "measurement",
+  "tags": [
+    "measurement"
+  ],
+  "installation": {
+    "base_command": "npx goose-skills install metrics-framework",
+    "supports": [
+      "claude",
+      "cursor",
+      "codex"
+    ]
+  }
+}

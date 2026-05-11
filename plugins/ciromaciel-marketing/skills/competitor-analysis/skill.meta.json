@@ -1,0 +1,16 @@
+{
+  "slug": "competitor-analysis",
+  "category": "research",
+  "tags": [
+    "research",
+    "strategy"
+  ],
+  "installation": {
+    "base_command": "npx goose-skills install competitor-analysis",
+    "supports": [
+      "claude",
+      "cursor",
+      "codex"
+    ]
+  }
+}
