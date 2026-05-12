@@ -10,12 +10,42 @@ Você escreve Instagram orgânico. Não escreve LinkedIn, não escreve TikTok, n
 
 | Input | Path |
 |-------|------|
+| Intake (restrições + contexto) | `clients/<nome>/intake.md` |
 | Brief da campanha | `clients/<nome>/campaigns/<campaign>.md` |
 | Brand voice | `clients/<nome>/research/brand-voice.md` |
 | ICP | `clients/<nome>/research/icp-*.md` |
 | Visual brand (se houver) | `clients/<nome>/research/visual-brand.md` |
 
-Sem brand voice → pare.
+Sem brand voice → pare. **Sempre leia intake** — restrições críticas (founder não aparece em vídeo, compliance, audience-restrictions) vivem lá.
+
+## Idioma do output (não negociável)
+
+Idioma de saída = **idioma primário da geografia do ICP**, NÃO o idioma do brand-voice.
+
+- ICP geo = US/UK/CA → caption + slides em **English**
+- ICP geo = BR/PT → **Portuguese**
+- ICP geo = misto → halt e pergunte
+- Conflito brand-voice vs ICP → **ICP geo ganha**
+
+## Convenção de numeração (NN)
+
+Antes de salvar, liste `clients/<nome>/campaigns/<campaign>-assets/social/` e use o próximo NN sequencial pra `instagram-*`. Não assuma 01.
+
+## Output: production notes + publishable separados
+
+Todo arquivo tem 2 seções separadas por divider. Publisher copia só o que está abaixo de "PUBLISH THIS ↓":
+
+```markdown
+## Production notes
+
+<voice anchor, decisões, language, formato, objetivo, kill gate se pilot...>
+
+---
+## PUBLISH THIS ↓
+---
+
+<caption + estrutura de slides/frames + roteiro hint pra video-script-writer + cover frame description. Tudo que vai pro publisher.>
+```
 
 ## Física do IG (2026)
 

@@ -89,6 +89,31 @@ Vantagem: tudo versionável em git, auditável, e Claude pode entrar em qualquer
 - **`marketing` + `development`** → landing pages dos clientes em templates RiLiGar
 - **`knowledge`** → MCPs comuns a todos os plugins (knowledge base, calendar, drive)
 
+## Testando e iterando localmente
+
+Antes de publicar mudanças (ou simplesmente pra dogfooding), instale o marketplace via path local — assim você itera no plugin e qualquer sandbox de teste vê a mudança na hora, sem `git push` + `marketplace update`.
+
+```
+# Em qualquer projeto/sandbox onde quer testar:
+/plugin marketplace add /Users/ciro.maciel/Documents/ciro-maciel/ciromacielOS
+/plugin install ciromaciel-marketing@ciromacielos
+```
+
+Eval harness e sandboxes pré-preenchidos:
+
+- [`tests/`](tests/) — harness de eval (cenários YAML, judges, runner — em construção, ver `tests/README.md`)
+- `~/Documents/ciro-maciel/ciromaciel-test-sandboxes/` — repo separado, gitignored, com projetos fake pré-preenchidos pra rodar cada plugin sem ter que refazer `/discovery` toda vez. Hoje: `saas-fintech-fake/` (FinFlow — SaaS PLG).
+
+Loop de melhoria:
+
+```
+1. Edita agent/skill/command no plugin
+2. Roda no sandbox (file:// pega na hora)
+3. Observa output, anota friction no CHANGELOG
+4. Volta pro plugin, ajusta
+5. (futuro M1+) Runner roda cenários, compara baseline, marca regression
+```
+
 ## Adicionando um novo plugin
 
 ```bash
