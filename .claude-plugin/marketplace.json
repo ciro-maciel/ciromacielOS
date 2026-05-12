@@ -20,6 +20,11 @@
       "description": "Agência de recrutamento (ATS) em 11 fases: intake → sourcing → screening → assessment → interviews → references → offer → handoff → analytics. Scorecard antes de candidato, mitigação de viés embutida."
     },
     {
+      "name": "ciromaciel-video-creator",
+      "source": "./plugins/ciromaciel-video-creator",
+      "description": "Pipeline de produção de vídeo via Remotion (React) + TTS. Roteiro → props.json → render → MP4. Library de templates compartilhada (split-screen comparison, screen-record, talking-head, etc.). Atende marketing, recruiting (employer branding) e career (personal brand)."
+    },
+    {
       "name": "ciromaciel-career",
       "source": "./plugins/ciromaciel-career",
       "description": "Planejamento de carreira completo — discovery, BHAG, OKRs trimestrais nos 5 vetores (skill, rede, marca, saúde, capital), weekly review, pivot. Baseado em pesquisa (Schein, Doerr, Ericsson, Granovetter, Collins, Newport)."

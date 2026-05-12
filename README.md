@@ -10,6 +10,7 @@ Marketplace pessoal de plugins do Claude Code. Agentes, skills, comandos e MCPs 
 |--------|---------|-------|-----------|
 | [`ciromaciel-marketing`](plugins/ciromaciel-marketing/) | Marketing / GTM | 8 (discovery → publish → report) | Agência completa: brand voice, ICP, GTM, campanhas, conteúdo canal-nativo (blog/LinkedIn/Instagram/vídeo), distribuição, tracking, retrospectiva |
 | [`ciromaciel-recruiting`](plugins/ciromaciel-recruiting/) | Recrutamento (ATS) | 11 (intake → handoff → analytics) | Agência de recrutamento: scorecard antes de candidato, sourcing, screening, assessment, debrief estruturado, offer calibrado, mitigação de viés embutida |
+| [`ciromaciel-video-creator`](plugins/ciromaciel-video-creator/) | Vídeo (Remotion + TTS) | 4 (script → build → render → publish) | Pipeline programático: roteiro humano-legível → escolha de template Remotion → áudio TTS → MP4. Library compartilhada por marketing/recruiting/career |
 | [`ciromaciel-career`](plugins/ciromaciel-career/) | Carreira pessoal | 8 (discovery → pivot) | Planejamento de carreira em 5 vetores (skill, rede, marca, saúde, capital) — BHAG 10y, OKRs trimestrais, weekly review. Baseado em pesquisa (Schein, Doerr, Ericsson, Granovetter, Collins, Newport) |
 | [`ciromaciel-development`](plugins/ciromaciel-development/) | Dev / templates RiLiGar | Pontuais | SEO, auditorias, scripts pra templates Vue/Vite |
 | [`ciromaciel-knowledge`](plugins/ciromaciel-knowledge/) | MCPs / pesquisa | — | Esqueleto pra conexões MCP (Linear, Notion, KB próprio, Drive, etc.) |
@@ -30,6 +31,7 @@ Marketplace pessoal de plugins do Claude Code. Agentes, skills, comandos e MCPs 
 /plugin install ciromaciel-marketing@ciromacielos
 /plugin install ciromaciel-recruiting@ciromacielos
 /plugin install ciromaciel-career@ciromacielos
+/plugin install ciromaciel-video-creator@ciromacielos
 /plugin install ciromaciel-development@ciromacielos
 /plugin install ciromaciel-knowledge@ciromacielos
 ```
@@ -84,6 +86,9 @@ Vantagem: tudo versionável em git, auditável, e Claude pode entrar em qualquer
 
 ## Plugins que combinam
 
+- **`marketing` + `video-creator`** → roteiro produzido em /execute (marketing) → render via /render-video → publish via marketing
+- **`recruiting` + `video-creator`** → employer branding videos, day-in-the-life, candidate testimonials
+- **`career` + `video-creator`** → personal brand video (talks, narrative)
 - **`marketing` + `recruiting`** → employer branding, conteúdo LinkedIn sobre vagas, careers page
 - **`recruiting` + `career`** → ver o jogo dos dois lados (recrutador e candidato)
 - **`marketing` + `development`** → landing pages dos clientes em templates RiLiGar

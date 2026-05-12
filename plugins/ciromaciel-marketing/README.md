@@ -65,8 +65,9 @@ Estado persiste em `clients/<nome>/` no repo do projeto que usa o plugin.
 |-------|-----------------|--------------|
 | `blog-writer` | Blog / CMS | Post completo com frontmatter SEO, 800-2000 palavras, intent match |
 | `linkedin-writer` | LinkedIn orgânico | Post text-only, carrossel (PDF) ou caption de vídeo — hook < 210 chars, CTA pro algoritmo |
-| `instagram-writer` | Instagram (feed, Reel, Story, carrossel) | Caption + estrutura de slides/frames + roteiro hint pra delegar a vídeo |
-| `video-script-writer` | Reel, Shorts, TikTok, YT, LinkedIn vídeo | Roteiro segundo-a-segundo + B-roll + caption burned-in + handoff de edição (NÃO renderiza) |
+| `instagram-writer` | Instagram (feed, Reel, Story, carrossel) | Caption + estrutura de slides/frames + delegação pro `video-script-writer` (no plugin `ciromaciel-video-creator`) |
+
+> **Vídeo mudou de plugin.** `video-script-writer` (roteiro) + render de MP4 agora vivem em [`ciromaciel-video-creator`](../ciromaciel-video-creator/). Quando o brief pede vídeo, `/execute` deste plugin delega pra lá. Marketing produz brief + script-anchor; video-creator entrega MP4.
 
 ### Revisão (entra em `/execute` após produção)
 | Agent | Função |

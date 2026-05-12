@@ -238,26 +238,34 @@ A cada 60-90s, mude algo:
 
 ## Output
 
-Salvar em `clients/<nome>/campaigns/<campaign>-assets/video/<plataforma>-<NN>-<slug>.md`.
+Salvar em `clients/<nome>/campaigns/<campaign>-assets/video/<slug>/script.md`.
 
-Ex: `video/reel-01-3-erros-outbound.md`, `video/youtube-01-como-prospectar-2026.md`.
+`<slug>` = 3-5 palavras kebab-case do tema. Ex: `video/mosaic-over-engineered/script.md`, `video/runway-template-launch/script.md`.
+
+> **Por que diretório por vídeo?** O próximo agent (`remotion-builder`) adiciona `props.json`, `audio-script.json`, `assets/` ao lado do script. Quando `/render-video` roda, produz `audio.mp3` + `out.mp4` na mesma pasta. Tudo de UM vídeo num diretório.
 
 **Inclua, ao final do roteiro:**
 
 ```
-## Handoff de produção
+## Handoff pro próximo agent
 
-Este roteiro está pronto pra edição. Próximos passos (humano ou ferramenta externa):
+Este roteiro está pronto pro pipeline do plugin `ciromaciel-video-creator`. Próximos passos:
 
-1. Gravar takes seguindo a tabela de beats
-2. Editar conforme cortes indicados (cada beat = 1 corte mínimo)
-3. Adicionar caption burned-in conforme coluna "On-screen caption"
-4. Aplicar música/SFX conforme "Áudio"
-5. Exportar no aspect ratio: <X:Y>
-6. Thumbnail: ver "Cover frame"
+1. Humano revisa este script.md
+2. Invoque o agent `remotion-builder` → produz props.json + audio-script.json + lista de assets
+3. Forneça assets `to-record` se houver (VO próprio se preferir voz humana, screenshots autenticados, etc.)
+4. Rode `/render-video <slug>` — orquestra fetch de assets + TTS + render Remotion → out.mp4
+5. `/publish` (do plugin marketing) revisa o MP4 e publica
 
-Ferramentas comuns: CapCut, Premiere, DaVinci Resolve, Descript.
-Render por IA (HeyGen, Synthesia, Runway): possível se talking-head simples — anote no início.
+**Template hint:** indique qual template Remotion encaixa melhor pra esse roteiro (ver `templates/src/compositions/README.md` do plugin video-creator):
+- `SplitScreenComparison` — comparação X vs Y
+- (próximos: ScreenRecordOverlay, TalkingHead, NumberReveal, ...)
+
+Se nenhum template existente serve, o `remotion-builder` vai halt — não tente compensar reescrevendo o roteiro pra encaixar.
+
+**Override opcional** (humano quer edição manual em vez de Remotion):
+- CapCut / Premiere / DaVinci — use o roteiro como blueprint
+- Render por IA (HeyGen, Synthesia) — possível se talking-head simples
 ```
 
 ## Princípios
@@ -267,7 +275,7 @@ Render por IA (HeyGen, Synthesia, Runway): possível se talking-head simples —
 - **1 ideia por vídeo curto.** Se tem 3 ideias, vira 3 vídeos.
 - **B-roll a cada 3-4s em formato curto.** Cabeça parada perde retenção.
 - **CTA específico > CTA genérico.** "Comenta CHECKLIST" > "Comenta abaixo".
-- **Roteiro é blueprint, não MP4.** Entregue claro o suficiente pra qualquer editor executar.
+- **Roteiro é blueprint, não MP4.** Entregue claro o suficiente pro `remotion-builder` mapear pra template, e pra qualquer editor humano executar (caso usem override manual).
 - **Brand voice trumps your style.**
 
 ## Não faça

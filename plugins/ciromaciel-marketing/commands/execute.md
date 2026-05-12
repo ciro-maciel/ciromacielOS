@@ -27,7 +27,7 @@ Liste, a partir do brief, todos os assets a gerar. Cada asset tem um produtor es
 | Post de blog / artigo | agent `blog-writer` | `<campaign>-assets/blog/` |
 | Post de LinkedIn orgânico | agent `linkedin-writer` | `<campaign>-assets/social/linkedin-*` |
 | Post de Instagram (feed/Reel/Story/carrossel) | agent `instagram-writer` | `<campaign>-assets/social/instagram-*` |
-| Roteiro de vídeo (Reel/Shorts/TikTok/YT/LinkedIn vídeo) | agent `video-script-writer` | `<campaign>-assets/video/` |
+| Roteiro de vídeo (Reel/Shorts/TikTok/YT/LinkedIn vídeo) | agent `video-script-writer` **do plugin `ciromaciel-video-creator`** | `<campaign>-assets/video/<slug>/script.md` |
 | Cold email sequence | skill `copy-generator` | `<campaign>-assets/emails/` |
 | Landing page | skill `copy-generator` | `<campaign>-assets/landing/` |
 | Ads (LinkedIn/Meta/Google) | skill `copy-generator` | `<campaign>-assets/ads/` |
@@ -36,7 +36,7 @@ Liste, a partir do brief, todos os assets a gerar. Cada asset tem um produtor es
 
 **Regra de roteamento:** cada canal vai pro especialista. Não mande "post de LinkedIn" pra `copy-generator` se `linkedin-writer` existe.
 
-**Vídeo é caso especial:** o `video-script-writer` entrega ROTEIRO (blueprint), não MP4. Edição/render fica fora — entregue o handoff de produção no arquivo.
+**Vídeo é caso especial:** o `video-script-writer` (do plugin `ciromaciel-video-creator`) entrega ROTEIRO (blueprint). Pra produzir MP4 de verdade, o usuário continua o pipeline naquele plugin: `remotion-builder` → `/render-video`. Aqui no `/execute` você para no script.
 
 Confirme com o usuário quais assets gerar nesta rodada (default: tudo do brief).
 
