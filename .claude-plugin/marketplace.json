@@ -12,22 +12,27 @@
     {
       "name": "ciromaciel-marketing",
       "source": "./plugins/ciromaciel-marketing",
-      "description": "Agentes e skills de marketing/GTM: brand voice, visual identity e campaign briefs."
+      "description": "Agência de marketing em 8 fases: discovery → research → strategy → campaign → execute (com agents canal-nativos: blog, LinkedIn, Instagram, vídeo) → distribute → measure → publish + report recorrente."
     },
     {
-      "name": "ciromaciel-development",
-      "source": "./plugins/ciromaciel-development",
-      "description": "Agentes e skills de desenvolvimento: SEO, performance, auditorias para templates RiLiGar."
-    },
-    {
-      "name": "ciromaciel-knowledge",
-      "source": "./plugins/ciromaciel-knowledge",
-      "description": "Conexões MCP (Linear, Notion, KB próprio) e ferramentas de pesquisa."
+      "name": "ciromaciel-recruiting",
+      "source": "./plugins/ciromaciel-recruiting",
+      "description": "Agência de recrutamento (ATS) em 11 fases: intake → sourcing → screening → assessment → interviews → references → offer → handoff → analytics. Scorecard antes de candidato, mitigação de viés embutida."
     },
     {
       "name": "ciromaciel-career",
       "source": "./plugins/ciromaciel-career",
       "description": "Planejamento de carreira completo — discovery, BHAG, OKRs trimestrais nos 5 vetores (skill, rede, marca, saúde, capital), weekly review, pivot. Baseado em pesquisa (Schein, Doerr, Ericsson, Granovetter, Collins, Newport)."
+    },
+    {
+      "name": "ciromaciel-development",
+      "source": "./plugins/ciromaciel-development",
+      "description": "Agentes e skills de desenvolvimento: SEO, performance, auditorias para templates RiLiGar (Vue/Vite)."
+    },
+    {
+      "name": "ciromaciel-knowledge",
+      "source": "./plugins/ciromaciel-knowledge",
+      "description": "Conexões MCP (Linear, Notion, KB próprio, Drive, Calendar) e ferramentas de pesquisa transversais. Esqueleto."
     }
   ]
 }

@@ -18,7 +18,18 @@ Generates marketing copy across canonical formats. Designed to be invoked one as
 
 - After `/new-campaign` has produced a brief
 - After brand voice + ICP exist
-- "Write me [3 cold emails / 5 LinkedIn posts / landing hero copy / 4 ad variations]"
+- For: **cold email sequences, email nurture, landing page sections, ad variations (LinkedIn/Meta/Google), X/Twitter posts**
+
+## When NOT to use (delegate instead)
+
+| Asset | Use this agent instead |
+|-------|------------------------|
+| Blog post / article / longform | `blog-writer` |
+| LinkedIn organic post / carousel | `linkedin-writer` |
+| Instagram feed / Reel / Story / carousel | `instagram-writer` |
+| Video script (Reel, Shorts, TikTok, YouTube, LinkedIn video) | `video-script-writer` |
+
+This skill stays for canonical short-form direct-response copy. Channel-native organic content goes to the channel specialists — they know the physics of each platform.
 
 ## Mandatory inputs (halt if missing)
 

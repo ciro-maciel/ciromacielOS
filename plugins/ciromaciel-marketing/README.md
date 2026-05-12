@@ -52,13 +52,28 @@ Estado persiste em `clients/<nome>/` no repo do projeto que usa o plugin.
 
 ## Agents
 
+### Research / intake
 | Agent | Função |
 |-------|--------|
 | `discovery-interviewer` | Entrevista guiada de 10-15 perguntas (intake) |
 | `icp-researcher` | Pesquisa profunda de ICP (personas, dores, canais) |
 | `competitor-researcher` | Mapeia 3-5 concorrentes via WebFetch paralelo |
 | `keyword-researcher` | Keywords por intent (info/commercial/transactional) |
-| `copy-critic` | Revisa copy contra brand voice (issues, não rewrite) |
+
+### Produção de conteúdo (canal-especialistas — entram em `/execute`)
+| Agent | Para qual canal | O que produz |
+|-------|-----------------|--------------|
+| `blog-writer` | Blog / CMS | Post completo com frontmatter SEO, 800-2000 palavras, intent match |
+| `linkedin-writer` | LinkedIn orgânico | Post text-only, carrossel (PDF) ou caption de vídeo — hook < 210 chars, CTA pro algoritmo |
+| `instagram-writer` | Instagram (feed, Reel, Story, carrossel) | Caption + estrutura de slides/frames + roteiro hint pra delegar a vídeo |
+| `video-script-writer` | Reel, Shorts, TikTok, YT, LinkedIn vídeo | Roteiro segundo-a-segundo + B-roll + caption burned-in + handoff de edição (NÃO renderiza) |
+
+### Revisão (entra em `/execute` após produção)
+| Agent | Função |
+|-------|--------|
+| `copy-critic` | Revisa qualquer copy contra brand voice (issues priorizadas, não rewrite) |
+
+> **Princípio:** cada canal tem física diferente (hook window, formato, algoritmo). Mandar tudo pra um copywriter generalista achata o output. `copy-generator` (skill) cobre email/landing/ads/X — onde o formato é mais canonical. Conteúdo orgânico canal-nativo vai pro especialista.
 
 ## Estrutura de estado por cliente
 
@@ -80,11 +95,15 @@ clients/<cliente>/
   ├── campaigns/
   │   ├── <campaign>.md                  # /new-campaign (brief)
   │   ├── <campaign>-metrics.md          # /measure modo A
-  │   ├── <campaign>-assets/             # /execute
-  │   │   ├── emails/
+  │   ├── <campaign>-assets/             # /execute (roteado por canal)
+  │   │   ├── blog/                      # blog-writer
   │   │   ├── social/
-  │   │   ├── landing/
-  │   │   └── ads/
+  │   │   │   ├── linkedin-*.md          # linkedin-writer
+  │   │   │   └── instagram-*.md         # instagram-writer
+  │   │   ├── video/                     # video-script-writer (roteiros, não MP4)
+  │   │   ├── emails/                    # copy-generator
+  │   │   ├── landing/                   # copy-generator
+  │   │   └── ads/                       # copy-generator
   │   ├── <campaign>-calendar.md         # /distribute (com coluna Status)
   │   └── <campaign>-retro.md            # /measure modo B
   └── reports/
@@ -120,7 +139,7 @@ clients/<cliente>/
 |-------|-------------|-----------|--------------|
 | Quais canais a empresa investe | `/strategy` | `strategy.md` (canal-ICP fit) | Humano + Claude (skill gtm-strategist) |
 | Quais canais essa campanha usa | `/new-campaign` | brief da campanha | Humano + Claude |
-| Conteúdo de cada post/email/ad | `/execute` | `<campaign>-assets/` | Claude (skill copy-generator) + crítica de copy-critic |
+| Conteúdo de cada post/email/ad/vídeo | `/execute` | `<campaign>-assets/` | Claude roteia pra agent especialista (`blog-writer` / `linkedin-writer` / `instagram-writer` / `video-script-writer`) ou skill `copy-generator` (email/landing/ads) + crítica de `copy-critic` |
 | Quando cada post vai ao ar | `/distribute` | `<campaign>-calendar.md` | Claude (skill content-calendar) |
 | **Publicar de fato** | `/publish` | Status no calendar é atualizado | **Humano aprova item-por-item**; Claude executa via MCP ou handoff manual |
 
