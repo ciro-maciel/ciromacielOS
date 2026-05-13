@@ -104,10 +104,10 @@ Itere por estes itens em ordem. Por item, siga "Protocolo por item" abaixo.
 
 | ID | Descrição | Onde vive | Quem consome |
 |----|-----------|-----------|--------------|
-| `marketplace_path` | Path do clone do ciromacielOS | `config.yaml` | todos os commands |
-| `sandboxes_path` | Path do repo de sandboxes | `config.yaml` | testing manual + tests/ harness |
 | `default_locale` | en-US / pt-BR | `config.yaml` | writers (linkedin/blog/instagram) — regra de idioma |
 | `shell_integration` | Adicionar `source ~/.ciromacielos/.env` no ~/.zshrc | `~/.zshrc` | qualquer Bash que precisa de env var do .env |
+
+> **Por que NÃO tem `marketplace_path` nem `sandboxes_path`:** plugins instalados via `/plugin marketplace add` são gerenciados pelo Claude Code runtime — você nunca lida com o path direto. `marketplace_path` só existiria pra um DEV do marketplace (que tem o repo clonado), e mesmo assim nenhum command precisa dele globalmente (cada command resolve paths via plugin runtime). Sandboxes são conceito interno de teste dos plugins, não de end user.
 
 ### Bloco B — video-creator (Remotion + TTS) — único plugin com integração API real
 
@@ -136,62 +136,7 @@ Cada item da manifest tem seu próprio playbook abaixo. Quando o wizard chegar n
 
 ---
 
-### A.1 — `marketplace_path`
-
-**O que é:** path absoluto do clone do repo `ciromacielOS` na máquina do user.
-**Por que precisa:** muitos commands (`/render-video`, eval harness futuro, `/setup verify`) precisam acessar arquivos dentro do marketplace (templates Remotion, agents, scenarios). Sem isso, eles erram com "file not found".
-**Salva em:** `~/.ciromacielos/config.yaml` → `marketplace_path`
-**Auto-detect:**
-  - Se `$PWD` contém `/ciromacielOS/`, use `$PWD` truncado até o nível do repo
-  - Senão, scan `~/Documents/`, `~/repos/`, `~/code/`, `~/dev/`, `~/Documents/ciro-maciel/` por subdiretório `ciromacielOS`
-  - Se encontrar 1 só → confirma com user antes de salvar
-  - Se encontrar múltiplos → lista pro user escolher
-
-**Conduzir o usuário (texto literal):**
-```
-📁 Marketplace path
-   What: where you cloned the ciromacielOS repo on this machine.
-   Why: agents and commands reference template files inside the repo
-        (Remotion templates, scenario YAMLs, etc.). Without this path,
-        /render-video can't find templates.
-
-   Detected: <auto-detected path or "none found">
-   Default if you don't know: ~/Documents/ciro-maciel/ciromacielOS
-
-   Press Enter to accept detected, or paste a different path:
-> _
-```
-
-**Validação:** confirme que `<path>/plugins/` e `<path>/.claude-plugin/marketplace.json` existem. Se não, recusa e pede de novo.
-
----
-
-### A.2 — `sandboxes_path`
-
-**O que é:** path do repo (gitignored) onde sandboxes de teste vivem (clientes fictícios, eval runs).
-**Por que precisa:** quando você testa/dogfooda um plugin, o estado (clients/, career/) vai pra cá. Convenção: irmão do `marketplace_path`, fora dele.
-**Salva em:** `config.yaml` → `sandboxes_path`
-**Auto-detect:** mesmo padrão do marketplace_path, procurando por subdiretório `ciromaciel-test-sandboxes`.
-
-**Conduzir o usuário (texto literal):**
-```
-📁 Sandboxes path
-   What: separate (gitignored) directory where test sandboxes live.
-         Holds fictional clients like 'saas-fintech-fake/' for dogfooding.
-   Why: keeps test data out of the marketplace repo (which is public).
-
-   Detected: <auto-detected or "none found">
-   Default: ~/Documents/ciro-maciel/ciromaciel-test-sandboxes
-
-   Press Enter to accept, paste different path, or [c]reate at default:
-> _
-```
-
-Se user escolhe `[c]reate` e dir não existe → `mkdir -p <path>` + cria `.gitignore` + README mínimo.
-
----
-
-### A.3 — `default_locale`
+### A.1 — `default_locale`
 
 **O que é:** idioma default pros writers (linkedin/blog/instagram) quando ICP geo é ambíguo.
 **Por que precisa:** regra dos writers é "ICP geo ganha sobre brand-voice". Se ICP é US-primário → en-US. Se ICP é misto, agents fazem halt e perguntam. Esse default é o fallback pra evitar halt em casos óbvios.
@@ -216,7 +161,7 @@ Se user escolhe `[c]reate` e dir não existe → `mkdir -p <path>` + cria `.giti
 
 ---
 
-### A.4 — `shell_integration`
+### A.2 — `shell_integration`
 
 **O que é:** uma linha no `~/.zshrc` (ou `~/.bash_profile`) que faz source de `~/.ciromacielos/.env` em todo shell novo.
 **Por que precisa:** sem isso, env vars ficam só na sessão atual. Bash spawned por Claude Code não as vê. Resultado: `/render-video` falha com "ELEVENLABS_API_KEY not set".

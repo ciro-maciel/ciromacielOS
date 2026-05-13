@@ -51,10 +51,10 @@ Salva após cada item — interromper não perde progresso. Re-run `/setup` reto
 
 ### Core (obrigatório se vai usar o marketplace)
 
-- `marketplace_path` — path do clone do ciromacielOS
-- `sandboxes_path` — path do repo de sandboxes
 - `default_locale` — `en-US` ou `pt-BR` (writers usam isso pra idioma de output)
 - `shell_integration` — adiciona `source ~/.ciromacielos/.env` no `~/.zshrc`
+
+> **Por que NÃO tem path do marketplace nem do sandboxes:** plugins instalados via `/plugin marketplace add` são gerenciados pelo Claude Code runtime — você nunca precisa do path do clone diretamente. `marketplace_path` só faria sentido pra um dev do próprio marketplace, e mesmo assim nenhum command depende dele (resolução é via plugin runtime). Sandboxes são conceito interno de teste dos plugins, não end-user config.
 
 ### Por plugin (atual)
 
