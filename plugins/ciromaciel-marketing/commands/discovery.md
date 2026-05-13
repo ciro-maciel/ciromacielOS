@@ -1,5 +1,5 @@
 ---
-description: Fase 1 — Discovery. Intake estruturado de cliente novo (SaaS ou serviço). Produz intake.md.
+description: "[1/8] Discovery — intake estruturado de cliente novo (SaaS ou serviço). Produz intake.md."
 ---
 
 Você foi invocado pelo comando `/discovery`. Esta é a **Fase 1** do fluxo de agência.

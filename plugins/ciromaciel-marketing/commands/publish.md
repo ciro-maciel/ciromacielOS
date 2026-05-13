@@ -1,5 +1,5 @@
 ---
-description: Fase 7 — Publish. Revisão gate item-por-item antes de publicar de fato (LinkedIn, email, blog, ads).
+description: "[7/8] Publish — revisão gate item-por-item antes de publicar de fato (LinkedIn, email, blog, ads)."
 ---
 
 Você foi invocado pelo comando `/publish`. Esta é a etapa de publicação real.

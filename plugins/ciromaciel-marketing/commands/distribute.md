@@ -1,5 +1,5 @@
 ---
-description: Fase 6 — Distribute. Content calendar multi-canal + schedule + handoff para ferramentas externas.
+description: "[6/8] Distribute — content calendar multi-canal + schedule + handoff para ferramentas externas."
 ---
 
 Você foi invocado pelo comando `/distribute`. Esta é a **Fase 6** — distribuição.

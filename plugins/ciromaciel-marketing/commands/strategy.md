@@ -1,5 +1,5 @@
 ---
-description: Fase 3 — Strategy. GTM blueprint de 12 meses (não campanha pontual). Produz clients/<nome>/strategy.md.
+description: "[3/8] Strategy — GTM blueprint de 6-12 meses (não campanha pontual). Produz clients/<nome>/strategy.md."
 ---
 
 Você foi invocado pelo comando `/strategy`. Esta é a **Fase 3** do fluxo de agência.

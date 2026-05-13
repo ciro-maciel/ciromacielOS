@@ -1,5 +1,5 @@
 ---
-description: Fase 5 — Execute. Gera assets de uma campanha (blog, LinkedIn, Instagram, vídeo, email, ads, landing) roteando para agent/skill especializado por canal.
+description: "[5/8] Execute — gera assets de uma campanha (blog, LinkedIn, Instagram, vídeo, email, ads, landing) roteando para agent/skill especializado por canal."
 ---
 
 Você foi invocado pelo comando `/execute`. Esta é a **Fase 5** — produção de assets.

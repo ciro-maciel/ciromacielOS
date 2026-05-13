@@ -1,5 +1,5 @@
 ---
-description: Fase 2 — Research. Orquestra ICP, concorrentes, keywords, brand voice e visual. Produz clients/<nome>/research/.
+description: "[2/8] Research — orquestra ICP, concorrentes, keywords, brand voice e visual. Produz clients/<nome>/research/."
 ---
 
 Você foi invocado pelo comando `/research`. Esta é a **Fase 2** do fluxo de agência.

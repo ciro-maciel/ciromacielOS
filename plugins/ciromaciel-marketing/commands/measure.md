@@ -1,5 +1,5 @@
 ---
-description: Fase 7 — Measure. Define KPIs por funil, report template e roda retrospectiva pós-campanha.
+description: "[8/8] Measure — define KPIs por funil (pré-campanha) e roda retrospectiva pós-campanha."
 ---
 
 Você foi invocado pelo comando `/measure`. Esta é a **Fase 7** — medição e iteração.

@@ -1,5 +1,5 @@
 ---
-description: Gera report cross-platform (semanal ou mensal) com decisões acionáveis. Híbrido: MCP onde existe, paste manual onde não.
+description: "[loop] Report — análise recorrente (semanal/mensal/quarterly) cross-platform com decisões acionáveis. Híbrido: MCP onde existe, paste manual onde não."
 ---
 
 Você foi invocado pelo comando `/report`. Esta é a fase de **análise recorrente** — diferente do `/measure` modo B (retrospectiva única no fim da campanha).
