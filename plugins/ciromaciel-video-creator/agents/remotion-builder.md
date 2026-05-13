@@ -107,7 +107,8 @@ clients/<nome>/campaigns/<campaign>-assets/video/<slug>/
 
 ```json
 {
-  "voice": "professional-male-neutral",
+  "provider": "elevenlabs",
+  "voice": null,
   "language": "en-US",
   "lines": [
     { "id": "L01", "fromSec": 0, "text": "Mosaic is over-engineered for Series A. Here's why in 75 seconds." },
@@ -116,7 +117,16 @@ clients/<nome>/campaigns/<campaign>-assets/video/<slug>/
 }
 ```
 
-Idioma do `language` segue regra do `video-script-writer`: ICP geo ganha. Voice ID é configurável — default `professional-male-neutral` (ElevenLabs).
+Idioma do `language` segue regra do `video-script-writer`: ICP geo ganha.
+
+**Voice ID — resolução em cascata:**
+1. `audio_script.voice` (se setado explicitamente neste arquivo)
+2. Env var do provider — `$ELEVENLABS_VOICE_ID` / `$OPENAI_TTS_VOICE` / `$CARTESIA_VOICE_ID`
+3. Hardcoded default razoável (ElevenLabs: `pNInz6obpgDQGcFmaJgB` — professional male neutral)
+
+Default = omita `voice` (`null`) e deixe o `tts-generator` ler do env. Só inclua `voice` explicitamente se ESTE vídeo precisa de voz diferente do default global (ex: voice feminina pra contraste).
+
+**Segurança:** nunca escreva API key aqui. Provider name e voice ID são seguros; key é APENAS env var do shell.
 
 ## Regras de mapeamento beat → frame
 

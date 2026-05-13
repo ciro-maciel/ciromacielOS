@@ -76,9 +76,12 @@ clients/<nome>/campaigns/<campaign>-assets/video/<slug>/
 # Node 18+
 node --version
 
-# Env var pra TTS (default ElevenLabs)
-export ELEVENLABS_API_KEY=sk-...
+# Env vars pra TTS (default ElevenLabs) — coloque no ~/.zshrc / ~/.bash_profile (NUNCA commited)
+export ELEVENLABS_API_KEY=sk_<sua-chave-rotacionada-no-dashboard>
+export ELEVENLABS_VOICE_ID=<seu-voice-id>   # opcional — fallback default global pra todos os vídeos
 ```
+
+**Segurança:** API key NUNCA vai em arquivo do repo, prop.json, audio-script.json ou commit. Vive só no seu shell. Se vazar (commit acidental, paste em chat), revogue + rotacione no dashboard ElevenLabs imediatamente. Voice ID é seguro (é só identificador).
 
 ### 2. Gerar roteiro
 

@@ -69,13 +69,30 @@ Pequeno gap (0.2-0.5s) entre segments evita corte abrupto. Se total ultrapassar 
 
 ## Provider config (env vars necessárias)
 
-| Provider | Env var | Custo aprox |
-|----------|---------|-------------|
-| ElevenLabs (default) | `ELEVENLABS_API_KEY` | $0.30 / 1k chars |
-| OpenAI | `OPENAI_API_KEY` | $15 / 1M chars |
-| Cartesia | `CARTESIA_API_KEY` | $0.06 / 1k chars (cheaper) |
+| Provider | Env vars | Custo aprox |
+|----------|----------|-------------|
+| ElevenLabs (default) | `ELEVENLABS_API_KEY` (obrigatória) + `ELEVENLABS_VOICE_ID` (opcional — fallback default) | $0.30 / 1k chars |
+| OpenAI | `OPENAI_API_KEY` + `OPENAI_TTS_VOICE` (opcional) | $15 / 1M chars |
+| Cartesia | `CARTESIA_API_KEY` + `CARTESIA_VOICE_ID` (opcional) | $0.06 / 1k chars (cheaper) |
 
 Default = ElevenLabs (melhor qualidade pra voice work em 2026). Override por `provider` no audio-script.json.
+
+### Convenção de resolução de voice
+
+Pra cada line do audio-script.json, o voice usado é resolvido nessa ordem:
+1. `line.voiceOverride` (se setado per-line — raro)
+2. `audio_script.voice` (top-level config)
+3. Env var do provider (`ELEVENLABS_VOICE_ID`, etc.)
+4. Hardcoded default razoável do provider (ver tabela abaixo)
+
+Isso permite ao usuário ter um voice padrão exportado no shell (`export ELEVENLABS_VOICE_ID=...`) e o `remotion-builder` pode omitir `voice` do audio-script.json quando o user já tem um default global.
+
+### Segurança — API keys nunca em arquivo
+
+- **NUNCA** escreva API key em `audio-script.json`, `props.json`, ou qualquer arquivo do repo
+- API key vive APENAS em env var do shell do usuário (`~/.zshrc` ou `~/.bash_profile`, gitignored)
+- Se key vaza (commited acidentalmente, postada em chat, etc.) → rotacione no dashboard do provider imediatamente
+- Voice ID é seguro persistir — é só identificador, não dá acesso à API
 
 ## Voice IDs por provider (defaults razoáveis)
 
