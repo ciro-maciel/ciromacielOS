@@ -8,6 +8,7 @@ Marketplace pessoal de plugins do Claude Code. Agentes, skills, comandos e MCPs 
 
 | Plugin | Domínio | Fases | O que faz |
 |--------|---------|-------|-----------|
+| [`ciromaciel-setup`](plugins/ciromaciel-setup/) | Config global | Wizard único | **Rodar primeiro.** `/setup` configura API keys, paths, shell integration. Persiste em `~/.ciromacielos/`, resumable (retoma se interromper). Uma vez, vale pra sempre. |
 | [`ciromaciel-marketing`](plugins/ciromaciel-marketing/) | Marketing / GTM | 8 (discovery → publish → report) | Agência completa: brand voice, ICP, GTM, campanhas, conteúdo canal-nativo (blog/LinkedIn/Instagram/vídeo), distribuição, tracking, retrospectiva |
 | [`ciromaciel-recruiting`](plugins/ciromaciel-recruiting/) | Recrutamento (ATS) | 11 (intake → handoff → analytics) | Agência de recrutamento: scorecard antes de candidato, sourcing, screening, assessment, debrief estruturado, offer calibrado, mitigação de viés embutida |
 | [`ciromaciel-video-creator`](plugins/ciromaciel-video-creator/) | Vídeo (Remotion + TTS) | 4 (script → build → render → publish) | Pipeline programático: roteiro humano-legível → escolha de template Remotion → áudio TTS → MP4. Library compartilhada por marketing/recruiting/career |
@@ -28,6 +29,7 @@ Marketplace pessoal de plugins do Claude Code. Agentes, skills, comandos e MCPs 
 ### 2. Instale os plugins que quer no projeto atual
 
 ```bash
+/plugin install ciromaciel-setup@ciromacielos        # SEMPRE primeiro — wizard de config
 /plugin install ciromaciel-marketing@ciromacielos
 /plugin install ciromaciel-recruiting@ciromacielos
 /plugin install ciromaciel-career@ciromacielos
@@ -38,9 +40,19 @@ Marketplace pessoal de plugins do Claude Code. Agentes, skills, comandos e MCPs 
 
 Escolha só os que fazem sentido — projeto de marketing puro não precisa do `recruiting` nem do `career`.
 
-### 3. Pronto
+### 3. Rode o setup wizard (primeira vez na máquina)
 
-Agentes aparecem no `Agent` tool, skills auto-disparam por contexto, commands viram `/new-campaign`, `/intake`, `/career-plan`, `/seo-update`. MCPs conectam.
+```
+/setup
+```
+
+Configura API keys, paths e shell integration em `~/.ciromacielos/` (global por usuário, não por projeto). Resumable: para e retoma sem perder progresso. Detecta credenciais já existentes em env vars / memory dir e oferece importar antes de pedir nova.
+
+Depois de fazer `/setup` uma vez, agentes/skills/commands em **qualquer projeto** com o marketplace usam essas credenciais sem reconfigurar.
+
+### 4. Pronto
+
+Agentes aparecem no `Agent` tool, skills auto-disparam por contexto, commands viram `/new-campaign`, `/intake`, `/career-plan`, `/render-video`, `/seo-update`. MCPs conectam.
 
 ## Como funciona
 
@@ -72,17 +84,34 @@ Regra prática:
 - "Pesquise Y em paralelo enquanto eu faço outra coisa" / "este canal tem regras próprias" → **Agent**
 - "Quero um atalho `/foo` pra começar esse fluxo" → **Command**
 
-## Convenção de estado por plugin
+## Convenção de estado
 
-Cada plugin que orquestra fluxo persiste estado em **arquivos no repo onde foi instalado**:
+### Estado **por projeto** (cliente / pessoa)
 
-| Plugin | Diretório raiz | Granularidade |
-|--------|----------------|---------------|
+Plugins que orquestram fluxo persistem estado em **arquivos no repo do projeto onde foi instalado**:
+
+| Plugin | Diretório raiz no projeto | Granularidade |
+|--------|---------------------------|---------------|
 | `ciromaciel-marketing` | `clients/<cliente>/` | Por cliente → campanhas → assets |
 | `ciromaciel-recruiting` | `clients/<cliente>/jobs/<vaga>/` | Por cliente → vaga → candidatos |
 | `ciromaciel-career` | `career/<nome>/` | Por pessoa (geralmente você) |
+| `ciromaciel-video-creator` | `clients/<cliente>/campaigns/<campaign>-assets/video/<slug>/` | Por vídeo |
 
 Vantagem: tudo versionável em git, auditável, e Claude pode entrar em qualquer fase lendo o estado existente em vez de re-perguntar.
+
+### Config **global por usuário** (API keys, paths, defaults)
+
+Configurado uma vez via `/setup`, persiste em `~/.ciromacielos/` (fora dos repos), vale pra qualquer projeto que use o marketplace:
+
+```
+~/.ciromacielos/
+├── .env                  # API keys (chmod 600) — sourced no ~/.zshrc
+├── config.yaml           # voice IDs, paths, defaults não-secretos
+├── setup-state.yaml      # progresso do wizard
+└── README.md
+```
+
+Vantagem: instala marketplace em 5 repos diferentes, ainda assim só 1 config. Backup = copiar 1 diretório.
 
 ## Plugins que combinam
 

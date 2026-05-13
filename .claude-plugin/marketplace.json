@@ -10,6 +10,11 @@
   },
   "plugins": [
     {
+      "name": "ciromaciel-setup",
+      "source": "./plugins/ciromaciel-setup",
+      "description": "Wizard global de configuração do marketplace. Coleta API keys de todos os plugins, cria diretórios, persiste em ~/.ciromacielos/. Resumable (retoma de onde parou). Sempre rodar primeiro: `/setup`."
+    },
+    {
       "name": "ciromaciel-marketing",
       "source": "./plugins/ciromaciel-marketing",
       "description": "Agência de marketing em 8 fases: discovery → research → strategy → campaign → execute (com agents canal-nativos: blog, LinkedIn, Instagram, vídeo) → distribute → measure → publish + report recorrente."

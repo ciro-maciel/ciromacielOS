@@ -1,0 +1,9 @@
+{
+  "name": "ciromaciel-setup",
+  "version": "0.1.0",
+  "description": "Wizard global de configuração do marketplace ciromacielOS. Coleta API keys, cria diretórios, persiste config em ~/.ciromacielos/ pra uso em qualquer projeto. Resumable (continua do ponto onde parou).",
+  "author": {
+    "name": "Ciro Maciel"
+  },
+  "keywords": ["setup", "config", "credentials", "wizard", "onboarding"]
+}
