@@ -130,6 +130,286 @@ Itere por estes itens em ordem. Por item, siga "Protocolo por item" abaixo.
 
 **Quando adicionar um item novo à manifest:** o plugin que precisa da integração edita esta seção (ou inclui um `setup-manifest.yaml` próprio na v0.2 se virar registry dinâmico). Princípio: manifest items são SEMPRE consumidos por código rodando — nunca speculative.
 
+## Passo 5 — Playbook detalhado por item
+
+Cada item da manifest tem seu próprio playbook abaixo. Quando o wizard chegar nele, **use o texto literal** da subseção `Conduzir o usuário` — não invente passos, não economize palavra. A diferença entre "Pega a key na ElevenLabs" e o playbook completo é a diferença entre o user achar e o user desistir.
+
+---
+
+### A.1 — `marketplace_path`
+
+**O que é:** path absoluto do clone do repo `ciromacielOS` na máquina do user.
+**Por que precisa:** muitos commands (`/render-video`, eval harness futuro, `/setup verify`) precisam acessar arquivos dentro do marketplace (templates Remotion, agents, scenarios). Sem isso, eles erram com "file not found".
+**Salva em:** `~/.ciromacielos/config.yaml` → `marketplace_path`
+**Auto-detect:**
+  - Se `$PWD` contém `/ciromacielOS/`, use `$PWD` truncado até o nível do repo
+  - Senão, scan `~/Documents/`, `~/repos/`, `~/code/`, `~/dev/`, `~/Documents/ciro-maciel/` por subdiretório `ciromacielOS`
+  - Se encontrar 1 só → confirma com user antes de salvar
+  - Se encontrar múltiplos → lista pro user escolher
+
+**Conduzir o usuário (texto literal):**
+```
+📁 Marketplace path
+   What: where you cloned the ciromacielOS repo on this machine.
+   Why: agents and commands reference template files inside the repo
+        (Remotion templates, scenario YAMLs, etc.). Without this path,
+        /render-video can't find templates.
+
+   Detected: <auto-detected path or "none found">
+   Default if you don't know: ~/Documents/ciro-maciel/ciromacielOS
+
+   Press Enter to accept detected, or paste a different path:
+> _
+```
+
+**Validação:** confirme que `<path>/plugins/` e `<path>/.claude-plugin/marketplace.json` existem. Se não, recusa e pede de novo.
+
+---
+
+### A.2 — `sandboxes_path`
+
+**O que é:** path do repo (gitignored) onde sandboxes de teste vivem (clientes fictícios, eval runs).
+**Por que precisa:** quando você testa/dogfooda um plugin, o estado (clients/, career/) vai pra cá. Convenção: irmão do `marketplace_path`, fora dele.
+**Salva em:** `config.yaml` → `sandboxes_path`
+**Auto-detect:** mesmo padrão do marketplace_path, procurando por subdiretório `ciromaciel-test-sandboxes`.
+
+**Conduzir o usuário (texto literal):**
+```
+📁 Sandboxes path
+   What: separate (gitignored) directory where test sandboxes live.
+         Holds fictional clients like 'saas-fintech-fake/' for dogfooding.
+   Why: keeps test data out of the marketplace repo (which is public).
+
+   Detected: <auto-detected or "none found">
+   Default: ~/Documents/ciro-maciel/ciromaciel-test-sandboxes
+
+   Press Enter to accept, paste different path, or [c]reate at default:
+> _
+```
+
+Se user escolhe `[c]reate` e dir não existe → `mkdir -p <path>` + cria `.gitignore` + README mínimo.
+
+---
+
+### A.3 — `default_locale`
+
+**O que é:** idioma default pros writers (linkedin/blog/instagram) quando ICP geo é ambíguo.
+**Por que precisa:** regra dos writers é "ICP geo ganha sobre brand-voice". Se ICP é US-primário → en-US. Se ICP é misto, agents fazem halt e perguntam. Esse default é o fallback pra evitar halt em casos óbvios.
+**Salva em:** `config.yaml` → `default_locale`
+**Valores válidos:** `en-US`, `pt-BR` (extensível depois pra `es-ES`, etc.)
+
+**Conduzir o usuário (texto literal):**
+```
+🌐 Default locale
+   What: fallback language for content writers when ICP geo is ambiguous.
+   Why: linkedin-writer/blog-writer/instagram-writer use ICP geo to pick
+        language. If ICP doesn't specify, they use this default
+        instead of stopping to ask.
+
+   Options:
+     [1] en-US   — English (most ICPs in your portfolio are US-focused)
+     [2] pt-BR   — Portuguese (Brazil)
+
+   Pick [1] or [2]:
+> _
+```
+
+---
+
+### A.4 — `shell_integration`
+
+**O que é:** uma linha no `~/.zshrc` (ou `~/.bash_profile`) que faz source de `~/.ciromacielos/.env` em todo shell novo.
+**Por que precisa:** sem isso, env vars ficam só na sessão atual. Bash spawned por Claude Code não as vê. Resultado: `/render-video` falha com "ELEVENLABS_API_KEY not set".
+**Salva em:** append no rc do shell
+
+**Detect:**
+```bash
+SHELL_RC=$([ -n "$ZSH_VERSION" ] && echo ~/.zshrc || echo ~/.bash_profile)
+ALREADY=$(grep -q "ciromacielos/.env" "$SHELL_RC" 2>/dev/null && echo yes || echo no)
+```
+
+Se `ALREADY=yes` → marca done e segue.
+
+**Conduzir o usuário (texto literal):**
+```
+🐚 Shell integration
+   What: adds this block to your <SHELL_RC>:
+
+       # ciromacielOS — global env (managed by /setup)
+       if [ -f ~/.ciromacielos/.env ]; then
+         set -a && source ~/.ciromacielos/.env && set +a
+       fi
+
+   Why: makes ELEVENLABS_API_KEY (and future keys) available in every
+        new shell — including the Bash that Claude Code spawns for
+        /render-video. Without this, you'd have to manually export
+        every time.
+
+   Append now? [y/n/show-current]
+> _
+```
+
+Se `[show-current]` → mostra as últimas 5 linhas do `<SHELL_RC>` antes de pedir confirmação.
+
+---
+
+### B.1 — `elevenlabs_api_key`
+
+**O que é:** API key da ElevenLabs, provider de TTS (text-to-speech) usado pelo `/render-video`.
+**Por que precisa:** quando você roda `/render-video`, o `tts-generator` chama a API da ElevenLabs com cada linha do roteiro → recebe MP3 com a voz lendo aquela linha → Remotion mixa esses MP3s no vídeo final. Sem essa chave, vídeo sai mudo (ou pipeline halta).
+**Cost reference (2026):**
+  - Free tier: 10k chars/mês (~6-7 vídeos de 75s) — chave válida mas pode esgotar rápido
+  - Starter ($5/mês): 30k chars + acesso a voices da library
+  - Creator ($22/mês): 100k chars + voice cloning (clone tua própria voz)
+  - Pro+ ($99/mês): 500k+ chars + formatos hi-fi (mp3_44100_192)
+  - Por vídeo de 75s: ~1.5k chars ≈ $0.30-0.50 (depende do tier)
+
+**Salva em:** `~/.ciromacielos/.env` como `export ELEVENLABS_API_KEY="sk_..."`
+**Formato esperado:** começa com `sk_`, ~51 chars total, hex/alphanumeric depois do prefix
+**Validação (após salvar):**
+```bash
+curl -sS -o /dev/null -w "%{http_code}" \
+  -H "xi-api-key: $KEY" \
+  https://api.elevenlabs.io/v1/user
+# 200 = OK
+# 401 = key inválida
+# 429 = rate limited (tenta de novo em 60s)
+```
+
+**Conduzir o usuário (texto literal):**
+```
+🔑 ElevenLabs API Key
+   What: API key for the TTS (text-to-speech) provider that turns
+         your video script into voice audio.
+   Used by: ciromaciel-video-creator → /render-video → tts-generator skill.
+   Cost: Free tier = 10k chars/month (~6 short videos). Paid from $5/mo.
+         Per video (75s): ~$0.30-0.50.
+
+   How to get it:
+   1. Open in browser: https://elevenlabs.io/app/settings/api-keys
+      (If you don't have an account: https://elevenlabs.io/sign-up — 30 sec.)
+   2. Top-right corner: click your profile avatar → "Profile + API key".
+   3. Under "API Keys", click "Create new key".
+      - Name it something like "ciromacielOS-marketplace".
+      - Permission scope: keep default (full access) unless you want
+        to lock it to TTS only — that's also fine.
+      - Click "Create".
+   4. COPY THE KEY NOW — once you close the modal, you can't see it again.
+      It starts with 'sk_' and is about 51 chars long.
+   5. Paste below.
+
+   Paste your key (or [s]kip / [q]uit):
+> _
+```
+
+Após user colar, **NUNCA ecoe a chave inteira**. Confirme com formato `sk_xxxx...xxxx` (primeiros 4 + últimos 4 só).
+
+---
+
+### B.2 — `elevenlabs_voice_id`
+
+**O que é:** ID da voz padrão que `/render-video` vai usar quando o `audio-script.json` não especifica voice override por linha.
+**Por que precisa:** ElevenLabs tem milhares de vozes. Sem default, todo audio-script.json teria que repetir o voice ID. Default global = configura 1 vez.
+**Salva em:** `.env` como `export ELEVENLABS_VOICE_ID="..."` + `config.yaml` em `elevenlabs.voice_id`
+**Formato esperado:** 20 chars alfanuméricos (ex: `YU8EsJtXFMyKMxYtheDk`, `pNInz6obpgDQGcFmaJgB`)
+**Validação:**
+```bash
+curl -sS -o /dev/null -w "%{http_code}" \
+  -H "xi-api-key: $KEY" \
+  "https://api.elevenlabs.io/v1/voices/$VOICE_ID"
+# 200 = voice exists e key tem acesso
+# 404 = voice ID não existe ou não tem acesso (voice clones são per-account)
+```
+
+**Duas formas de obter:**
+
+**Opção 1 — Usar voz pré-built da library (grátis, qualquer tier):**
+```
+🎙️  ElevenLabs Voice ID — Option A: pre-built voice
+   1. Open: https://elevenlabs.io/app/voice-library
+   2. Browse the catalog. Filters: language (English, Portuguese, etc.),
+      gender, accent, style (conversational, narrative, etc.).
+   3. Hover any voice → click ▶ to preview the sound.
+   4. When you find one you like, click the voice card to open detail.
+   5. Click "Add to My Voices" (so it shows up on your account).
+   6. Now go to: https://elevenlabs.io/app/voice-lab → click the voice you added
+      → click the "⋯" menu → "Copy Voice ID".
+   7. The ID is 20 alphanumeric chars (no 'sk_' prefix).
+
+   Examples of good defaults (English, professional):
+   - pNInz6obpgDQGcFmaJgB   (Adam — confident male, neutral)
+   - EXAVITQu4vr4xnSDxMaL   (Bella — warm female, conversational)
+   - 21m00Tcm4TlvDq8ikWAM   (Rachel — calm female, narrative)
+```
+
+**Opção 2 — Clonar tua voz (Creator tier+, $22/mês):**
+```
+🎙️  ElevenLabs Voice ID — Option B: clone your own voice
+   Requires Creator subscription tier or higher ($22/mo).
+
+   1. Open: https://elevenlabs.io/app/voice-lab
+   2. Click "Add a New Voice" → "Instant Voice Cloning".
+   3. Upload 1-3 minutes of clean audio of yourself speaking
+      (any topic; just clear, no background noise).
+      You can also record directly in the browser.
+   4. Name the voice (ex: "Ciro — primary").
+   5. ElevenLabs trains and gives you a Voice ID.
+   6. Click the voice → "⋯" → "Copy Voice ID".
+
+   Pros: every video has YOUR voice (great for personal brand).
+   Cons: requires paid tier + careful with deepfake ethics.
+```
+
+**Conduzir o usuário (texto literal — fluxo único cobrindo as duas opções):**
+```
+🎙️  ElevenLabs Voice ID
+   What: the default voice used by /render-video when a video script
+         doesn't override it.
+   Why: avoids re-specifying voice in every audio-script.json.
+
+   Two ways to get one:
+
+   [A] Pre-built voice from ElevenLabs library (FREE, any tier).
+       Browse https://elevenlabs.io/app/voice-library, pick one,
+       copy its Voice ID. ~30 seconds.
+
+   [B] Clone YOUR voice (requires Creator tier $22/mo).
+       Upload 1-3 min of yourself talking at
+       https://elevenlabs.io/app/voice-lab → "Instant Voice Cloning".
+       ~5 minutes total.
+
+   Quick recommendation: start with [A] (pNInz6obpgDQGcFmaJgB =
+   Adam, solid English neutral default). You can switch to a clone
+   later via /setup rotate elevenlabs_voice_id.
+
+   Pick:
+     [a] paste a pre-built voice ID below
+     [b] paste a cloned voice ID below  
+     [d] use default (pNInz6obpgDQGcFmaJgB — Adam)
+     [s] skip
+     [q] quit
+> _
+```
+
+Após user colar, validate via API (ver Validação acima). Se 404, mostra: "Voice ID not found OR your API key doesn't have access. Try again or [d] for default."
+
+---
+
+## Princípio editorial — para todo item futuro
+
+Quando adicionar um item novo à manifest, ele DEVE ter, sem exceção:
+
+1. **O que é** — 1 frase clara, sem jargão
+2. **Por que precisa** — qual command/skill consome E o que quebra sem isso
+3. **Cost reference** — se for serviço pago, faixa de preços + estimativa de uso típico (ex: "$0.30 por vídeo de 75s")
+4. **Salva em** — `.env` / `config.yaml` / shell rc — sempre explícito
+5. **Formato esperado** — regex ou exemplo (`sk_xxx`, `xxx-xxx-xxxx`, etc.)
+6. **Validação** — comando curl ou função que checa se a key funciona
+7. **Como pegar — passo-a-passo numerado** — URL exata, qual botão, em que canto, qual texto procurar. NÃO escreva "vai nas configurações da plataforma" — escreva "abra https://X → top-right avatar → 'API Keys' → 'Create new'". Linkar diretamente quando possível.
+8. **Conduzir o usuário (texto literal)** — bloco em código formatado pronto pra mostrar. Inclui o que o user vê + as opções `[y/n/s/q]`.
+
+Itens com OAuth (Google, etc.) terão um Passo extra: "abra browser pra autenticar → cola o token resultante". OAuth automation é fora do escopo desse wizard.
+
 ## Protocolo por item
 
 Para CADA item do manifest, na ordem:
