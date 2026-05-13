@@ -1,9 +1,8 @@
 import React from "react";
 import {
 	AbsoluteFill,
-	Audio,
+	Html5Audio,
 	Img,
-	Sequence,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -38,12 +37,12 @@ export const SplitScreenComparison: React.FC<SplitScreenComparisonProps> = ({
 
 	return (
 		<AbsoluteFill style={{ backgroundColor: brand.bgPrimary }}>
-			{/* Áudio (VO + música opcional) */}
+			{/* Áudio (VO + música opcional) — Html5Audio é o nome novo no Remotion v4; Audio export deprecated mas funcional */}
 			{audio.voPath ? (
-				<Audio src={staticFile(audio.voPath)} volume={1} />
+				<Html5Audio src={staticFile(audio.voPath)} volume={1} />
 			) : null}
 			{audio.musicPath ? (
-				<Audio
+				<Html5Audio
 					src={staticFile(audio.musicPath)}
 					volume={audio.duckMusicUnderVo && audio.voPath ? 0.18 : 0.5}
 				/>
