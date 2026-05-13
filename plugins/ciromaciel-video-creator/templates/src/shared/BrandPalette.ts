@@ -14,9 +14,9 @@ export const brandPaletteSchema = z.object({
 	accentNegative: z.string().default("#FF5C7A"),
 	accentLink: z.string().default("#5B8DEF"),
 	border: z.string().default("#1F2940"),
-	fontHeading: z.string().default("Inter"),
-	fontBody: z.string().default("Inter"),
-	fontData: z.string().default("JetBrains Mono"),
+	fontHeading: z.string().default("Montserrat"),
+	fontBody: z.string().default("Montserrat"),
+	fontData: z.string().default("Montserrat"),
 });
 
 export type BrandPalette = z.infer<typeof brandPaletteSchema>;
@@ -30,7 +30,7 @@ export const defaultBrand: BrandPalette = {
 	accentNegative: "#FF5C7A",
 	accentLink: "#5B8DEF",
 	border: "#1F2940",
-	fontHeading: "Inter",
-	fontBody: "Inter",
-	fontData: "JetBrains Mono",
+	fontHeading: "Montserrat",
+	fontBody: "Montserrat",
+	fontData: "Montserrat",
 };

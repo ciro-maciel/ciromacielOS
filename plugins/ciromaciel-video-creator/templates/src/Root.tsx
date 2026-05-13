@@ -1,4 +1,5 @@
 import { Composition } from "remotion";
+import "./shared/fonts";
 import { SplitScreenComparison } from "./compositions/SplitScreenComparison/SplitScreenComparison";
 import {
 	splitScreenComparisonSchema,

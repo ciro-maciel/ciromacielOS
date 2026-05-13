@@ -57,13 +57,56 @@ Após gerar, verifique:
 - `totalDurationSec` do audio-meta.json ≤ `duration` do props.json (já validado pela skill, mas confira)
 - Se passa por > 2s, halt e sugere encurtar roteiro
 
-## Passo 3 — Reconciliar caption timing (opcional, recomendado)
+## Passo 3 — Reconciliar timing áudio↔slide (OBRIGATÓRIO)
 
-Caption timing no `props.json` foi estimado pelo `remotion-builder` baseado em words/segundo. O áudio TTS real pode diferir.
+> **Por que obrigatório:** `props.json` é estimado pelo `remotion-builder` em words/segundo. TTS real **sempre** drifta — algumas frases falam mais rápido, outras mais lento, e o drift acumula. Sem reconciliar, o card "PAUSA" cai 4s antes do narrador dizer "pausa", o card de CTA aparece quando a voz ainda está no item 3. Pular este passo é a causa #1 de vídeo dessincronizado.
 
-Para cada caption no props.json, ajuste `fromSec`/`toSec` baseado nos `startSec`/`endSec` reais dos segments correspondentes no audio-meta.json (match por `id` do segment).
+Reconcilia **três classes de timing** no `props.json`:
 
-Salva `props.json` atualizado. Mantém backup em `props.json.bak`.
+### 3a. Captions (caption por segmento de áudio)
+
+Para cada item em `captions[]`, match por `id` no `audio-meta.json.segments[].id` e sobrescreva:
+- `fromSec ← segment.startSec`
+- `toSec ← segment.endSec`
+
+Captions sem `id` correspondente no audio-meta: deixa como está + warn.
+
+### 3b. Cards / Blocks / Chapters / Brollslots (estrutura visual)
+
+Cards têm IDs próprios (`C01-cold-open`) que **não batem** com IDs de segmento de áudio (`L01`). A âncora correta é o campo `card.audioSegmentId` (ou `card.audioSegmentIds: ["L05", "L06", "L07"]` se o card cobre vários).
+
+Algoritmo por card:
+1. Se `card.audioSegmentId` existe → `fromSec ← audioMeta.segments[id].startSec`
+2. Se `card.audioSegmentIds` (array) existe → `fromSec ← segments[first].startSec`, `toSec ← segments[last].endSec`
+3. Se NENHUM dos dois existe → fallback proporcional:
+   - Calcule `scale = audioMeta.totalDurationSec / props.durationSec` (drift global)
+   - Aplique: `card.fromSec *= scale`, `card.toSec *= scale`
+   - Avise no report: "Card `<id>` reconciled by global scale (no audioSegmentId anchor). Considere adicionar `audioSegmentId` no remotion-builder pra precisão."
+
+Aplique a mesma lógica a `blocks[].blockStartSec`, `chapters[].startSec`, `brollSlots[].fromSec/.toSec`.
+
+### 3c. Fechar gaps entre cards
+
+Depois do passo 3b, garanta que `cards[i].toSec === cards[i+1].fromSec` (sem gaps, sem overlaps que cortem o card anterior). Estratégia:
+- Se gap < 0.3s → estende `cards[i].toSec` até `cards[i+1].fromSec`
+- Se overlap → encurta `cards[i].toSec` pra bater com `cards[i+1].fromSec`
+- Último card: `cards[N-1].toSec ← audioMeta.totalDurationSec`
+
+### 3d. Persistir
+
+Salve `props.json` atualizado. Mantenha backup em `props.json.bak`.
+
+Atualize também `props.durationSec` (ou `props.duration`) pra `Math.ceil(audioMeta.totalDurationSec)` — assim o `calculateMetadata` do template gera o número certo de frames.
+
+### Validação final do passo 3
+
+Após reconciliar, verifique:
+- ✅ Toda caption tem `fromSec < toSec`
+- ✅ Cards são monotônicos: `cards[i].toSec === cards[i+1].fromSec`
+- ✅ `cards[N-1].toSec ≈ audioMeta.totalDurationSec` (±0.1s)
+- ✅ Nenhum `fromSec` ou `toSec` ficou negativo ou NaN
+
+Se qualquer falhar, halt + reporte qual card/caption + sugira: "regenere props.json via `remotion-builder` certificando que cada card tem `audioSegmentId(s)`."
 
 ## Passo 4 — Render Remotion
 
@@ -110,6 +153,7 @@ Monitore stdout. Se erro, reporte:
 - Falta de TSX template → "Template X não existe em templates/src/compositions/. Crie ou troque template no props.json."
 - Asset missing → "Asset Y referenciado mas não está em assets/. Veja Passo 1."
 - Audio sync issue → "Audio total excede duração. Ver Passo 2."
+- Font fallback (Headless Chromium loga "font Montserrat not found") → o `src/shared/fonts.ts` deve estar importado em `Root.tsx`. Se faltou, adicione `import "./shared/fonts";` no topo do Root.tsx.
 
 ## Passo 5 — Validar MP4 produzido
 

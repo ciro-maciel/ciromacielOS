@@ -117,6 +117,32 @@ clients/<nome>/campaigns/<campaign>-assets/video/<slug>/
 }
 ```
 
+## Âncora obrigatória — cada card aponta pra audio segments
+
+**Isto não é opcional.** Pra `/render-video` reconciliar áudio TTS real com o timing dos slides, cada card no `props.json` precisa declarar a qual segmento(s) de áudio ele corresponde.
+
+Use **um destes dois campos** em cada card:
+
+- `audioSegmentId: "L05"` — quando o card cobre exatamente uma fala (caso comum: anchor card de 1 ponto)
+- `audioSegmentIds: ["L05", "L06", "L07"]` — quando o card cobre múltiplas falas (caso comum: bloco/capítulo intro)
+
+Exemplo:
+
+```json
+{
+  "cards": [
+    { "id": "C01-cold-open", "audioSegmentId": "L01", "layout": "hero-number", "headlineLines": ["DECLARADA", "≠", "OBEDECIDA"] },
+    { "id": "C02-intro", "audioSegmentIds": ["L02", "L03"], "layout": "eyebrow-title", "eyebrow": "INTRODUÇÃO", "headlineLines": ["SCHEIN · MIT", "12 ANOS"] }
+  ]
+}
+```
+
+Os `fromSec`/`toSec` que você emite são apenas **estimativas iniciais** — o `/render-video` Passo 3 sobrescreve com os timings reais do TTS via lookup por `audioSegmentId(s)`.
+
+Aplique a mesma âncora a `blocks[].audioSegmentId` (primeiro segment do bloco), `chapters[].audioSegmentId`, e `brollSlots[].audioSegmentId(s)`.
+
+**Se você não conseguir mapear** um card a segments (ex: card puramente visual sem fala correspondente, tipo um silêncio de pausa), deixe os campos ausentes — o Passo 3 cai pro fallback de escala proporcional + avisa no report.
+
 Idioma do `language` segue regra do `video-script-writer`: ICP geo ganha.
 
 **Voice ID — resolução em cascata:**

@@ -237,7 +237,7 @@ function brandToCaptionPalette(
 		border: brand.border ?? brand.borderHairline ?? "#E5E7EB",
 		fontHeading: brand.fontHeading ?? "Montserrat",
 		fontBody: brand.fontBody ?? "Montserrat",
-		fontData: brand.fontData ?? brand.fontMono ?? "JetBrains Mono",
+		fontData: brand.fontData ?? brand.fontMono ?? brand.fontHeading ?? "Montserrat",
 	};
 }
 
@@ -352,7 +352,7 @@ const CardRenderer: React.FC<{
 						position: "absolute",
 						top: padding * 0.6 + 24,
 						right: padding * 0.6 + 24,
-						fontFamily: brand.fontMono ?? brand.fontData ?? "JetBrains Mono",
+						fontFamily: brand.fontMono ?? brand.fontData ?? brand.fontHeading ?? "Montserrat",
 						fontSize: 16,
 						fontWeight: 600,
 						letterSpacing: "0.12em",
@@ -419,7 +419,7 @@ const BrollPlaceholder: React.FC<{
 			>
 				<div
 					style={{
-						fontFamily: brand.fontMono ?? brand.fontData ?? "JetBrains Mono",
+						fontFamily: brand.fontMono ?? brand.fontData ?? brand.fontHeading ?? "Montserrat",
 						fontSize: 24,
 						fontWeight: 600,
 						color: "#9CA3AF",
@@ -795,7 +795,7 @@ const AnchorLayout: React.FC<{
 			{card.number ? (
 				<div
 					style={{
-						fontFamily: brand.fontMono ?? brand.fontData ?? "JetBrains Mono",
+						fontFamily: brand.fontMono ?? brand.fontData ?? brand.fontHeading ?? "Montserrat",
 						fontWeight: 700,
 						fontSize: 64,
 						color: accent,
@@ -953,7 +953,7 @@ const CtaLayout: React.FC<{
 	hairlineColor: string;
 }> = ({ card, brand, fg, accent, hairlineColor }) => {
 	const font = brand.fontHeading ?? "Montserrat";
-	const monoFont = brand.fontMono ?? brand.fontData ?? "JetBrains Mono";
+	const monoFont = brand.fontMono ?? brand.fontData ?? brand.fontHeading ?? "Montserrat";
 
 	const urlText =
 		typeof card.url === "string" ? card.url : card.url?.text ?? null;

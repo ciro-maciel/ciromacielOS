@@ -135,7 +135,7 @@ function brandToCaptionPalette(
 		border: brand.border ?? brand.borderHairline ?? "#E5E7EB",
 		fontHeading: brand.fontHeading ?? "Montserrat",
 		fontBody: brand.fontBody ?? "Montserrat",
-		fontData: brand.fontData ?? brand.fontMono ?? "JetBrains Mono",
+		fontData: brand.fontData ?? brand.fontMono ?? brand.fontHeading ?? "Montserrat",
 	};
 }
 
@@ -626,7 +626,7 @@ const AnchorLayout: React.FC<{
 			{card.number ? (
 				<div
 					style={{
-						fontFamily: brand.fontMono ?? brand.fontData ?? "JetBrains Mono",
+						fontFamily: brand.fontMono ?? brand.fontData ?? brand.fontHeading ?? "Montserrat",
 						fontWeight: 700,
 						fontSize: 56,
 						color: accent,
@@ -792,7 +792,7 @@ const CtaLayout: React.FC<{
 	hairlineColor: string;
 }> = ({ card, brand, fg, accent, hairlineColor }) => {
 	const font = brand.fontHeading ?? "Montserrat";
-	const monoFont = brand.fontMono ?? brand.fontData ?? "JetBrains Mono";
+	const monoFont = brand.fontMono ?? brand.fontData ?? brand.fontHeading ?? "Montserrat";
 
 	// URL may be string or object
 	const urlText =

@@ -84,6 +84,12 @@ const cardSchema = z.object({
 	atSec: z.number().optional(),
 	durationSec: z.number().optional(),
 
+	// Âncora pra reconciliação áudio↔slide no /render-video Passo 3.
+	// remotion-builder preenche; /render-video lê e sobrescreve fromSec/toSec
+	// com os timings reais do TTS via lookup no audio-meta.json.
+	audioSegmentId: z.string().optional(),
+	audioSegmentIds: z.array(z.string()).optional(),
+
 	// Background — aceita "bg" ou "background"
 	bg: z.string().optional(),
 	background: z.string().optional(),
@@ -350,8 +356,8 @@ export const typographicCardSequenceDefaults: TypographicCardSequenceProps = {
 		borderHairline: "#E5E7EB",
 		fontHeading: "Montserrat",
 		fontBody: "Montserrat",
-		fontMono: "JetBrains Mono",
-		fontData: "JetBrains Mono",
+		fontMono: "Montserrat",
+		fontData: "Montserrat",
 		radius: 8,
 		trackingHero: "-0.05em",
 		trackingDisplay: "-0.04em",

@@ -25,11 +25,13 @@ const blockSchema = z.object({
 	title: z.string().optional(), // alias
 	blockStartSec: z.number(),
 	color: z.string().optional(),
+	audioSegmentId: z.string().optional(),
 });
 
 const chapterSchema = z.object({
 	title: z.string(),
 	startSec: z.number(),
+	audioSegmentId: z.string().optional(),
 });
 
 const brollSlotSchema = z.object({
@@ -38,6 +40,8 @@ const brollSlotSchema = z.object({
 	toSec: z.number(),
 	label: z.string().default("[ b-roll placeholder ]"),
 	hint: z.string().optional(),
+	audioSegmentId: z.string().optional(),
+	audioSegmentIds: z.array(z.string()).optional(),
 });
 
 // Extended card — herda TypographicCard mas adiciona patternInterrupt + brollSlot fields
@@ -170,8 +174,8 @@ export const longformCardSequenceDefaults: LongformCardSequenceProps = {
 		borderHairline: "#E5E7EB",
 		fontHeading: "Montserrat",
 		fontBody: "Montserrat",
-		fontMono: "JetBrains Mono",
-		fontData: "JetBrains Mono",
+		fontMono: "Montserrat",
+		fontData: "Montserrat",
 		radius: 8,
 		trackingHero: "-0.05em",
 		trackingDisplay: "-0.04em",

@@ -45,11 +45,12 @@ Execute a skill `content-calendar` deste plugin. Ela produz:
 `clients/<nome>/campaigns/<campaign>-calendar.md` — plano publicável.
 
 Opcionalmente, exports prontos:
-- `<campaign>-buffer.csv` (social)
 - `<campaign>-smartlead.csv` (emails outbound)
 - `<campaign>-mailchimp.json` (nurture)
 
-Pergunte ao usuário quais ferramentas ele usa antes de exportar — não gere CSV pra ferramentas que ele não tem.
+> **Sobre Buffer (social orgânico):** não gere mais CSV de Buffer. O `/publish` agora usa a API do Buffer diretamente via `BUFFER_ACCESS_TOKEN` (configurado em `/setup` Bloco C). O calendar precisa apenas das colunas `Date`, `Time`, `Channel` (LinkedIn, X, IG, FB, Threads, Bluesky) e `Asset path` — o `/publish` resolve `profile_id` em runtime.
+
+Pergunte ao usuário quais ferramentas ele usa antes de exportar CSV/JSON — não gere export pra ferramentas que ele não tem.
 
 ## Próximo passo
 

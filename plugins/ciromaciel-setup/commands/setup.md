@@ -109,12 +109,18 @@ Itere por estes itens em ordem. Por item, siga "Protocolo por item" abaixo.
 
 > **Por que NÃO tem `marketplace_path` nem `sandboxes_path`:** plugins instalados via `/plugin marketplace add` são gerenciados pelo Claude Code runtime — você nunca lida com o path direto. `marketplace_path` só existiria pra um DEV do marketplace (que tem o repo clonado), e mesmo assim nenhum command precisa dele globalmente (cada command resolve paths via plugin runtime). Sandboxes são conceito interno de teste dos plugins, não de end user.
 
-### Bloco B — video-creator (Remotion + TTS) — único plugin com integração API real
+### Bloco B — video-creator (Remotion + TTS)
 
 | ID | Item | Quem consome | Obtain at |
 |----|------|--------------|-----------|
 | `elevenlabs_api_key` | TTS via API | `/render-video` command + `tts-generator` skill | https://elevenlabs.io/app/settings/api-keys |
 | `elevenlabs_voice_id` | Voice ID padrão | mesmo | https://elevenlabs.io/app/voice-library |
+
+### Bloco C — marketing-publish (agendamento social)
+
+| ID | Item | Quem consome | Obtain at |
+|----|------|--------------|-----------|
+| `buffer_access_token` | Access token pessoal do Buffer (orgânico: LinkedIn, X, IG, FB) | `/publish` command (marketing) | https://publish.buffer.com/account/apps |
 
 ### O que NÃO está na manifest (e por quê)
 
@@ -122,7 +128,8 @@ Itere por estes itens em ordem. Por item, siga "Protocolo por item" abaixo.
 |----------|---------------------|
 | OpenAI / Cartesia (TTS alternativo) | Documentados como providers alternativos no `tts-generator`, mas não implementados. Add item quando ElevenLabs deixar de ser default ou alguém quiser fallback. |
 | Anthropic API key | Decidimos usar subscription do Claude Code (option A) pro eval harness. Sem API key separada. |
-| HubSpot, Customer.io, Smartlead, GA4, Meta, Google Ads | Marketing plugin DOCUMENTA esses providers em tracking-setup/publish, mas nenhum command/skill faz API call real hoje. Quando algum começar a fazer (ex: `/publish` puxar lista do HubSpot via API), o item vai pra manifest. |
+| HubSpot, Customer.io, Smartlead, GA4, Meta Ads, Google Ads | Marketing plugin DOCUMENTA esses providers em tracking-setup/publish, mas nenhum command/skill faz API call real hoje. Quando algum começar a fazer (ex: `/publish` puxar lista do HubSpot via API), o item vai pra manifest. |
+| Typefury, Hypefury, Publer, SocialBee (outros agregadores) | Buffer é o agregador escolhido pra orgânico (Bloco C). Se trocar de provider, este item sai e o substituto entra — não cumulativo. |
 | Greenhouse, Lever, Gupy (ATS) | Recruiting é 100% markdown-driven hoje — Claude conduz o recrutador, não chama API de ATS. Add item quando algum command realmente sincronizar com ATS. |
 | Linear, Notion, Google Drive | Knowledge plugin é literalmente "🚧 Esqueleto" — sem MCP configurado. Quando o `.mcp.json` for criado, esse item entra. |
 | Cloudflare, Vercel | Development plugin é SEO-puro, não faz deploy. Add se um command de deploy aparecer. |
@@ -337,6 +344,89 @@ curl -sS -o /dev/null -w "%{http_code}" \
 ```
 
 Após user colar, validate via API (ver Validação acima). Se 404, mostra: "Voice ID not found OR your API key doesn't have access. Try again or [d] for default."
+
+---
+
+### C.1 — `buffer_access_token`
+
+**O que é:** access token pessoal do Buffer, usado pelo `/publish` (plugin marketing) pra agendar/publicar posts orgânicos em LinkedIn, X/Twitter, Instagram, Facebook, Threads, Bluesky etc.
+**Por que precisa:** sem isso, `/publish` cai pro modo manual (mostra copy, espera o usuário publicar à mão). Com o token, o command agenda direto via API — ainda passa pelo gate de aprovação humana item-por-item, mas o handoff vira 1 click em vez de 10.
+**Por que Buffer (não outro):** orgânico não é alvo de automação heavy (LinkedIn nem tem API estável pra orgânico individual). Buffer agrega 6+ redes num token só, free tier permite 3 canais conectados, paid tier ($6-12/mês) libera mais. É o least-bad pra um operador solo.
+**Cost reference (2026):**
+  - Free: 3 canais conectados, 10 posts agendados por canal — suficiente pra teste
+  - Essentials ($6/mês por canal): posts ilimitados + analytics básico
+  - Team ($12/mês por canal): + colaboração, aprovações
+  - Para 1 fundador com 3 canais (LinkedIn pessoal + LinkedIn empresa + X): Free funciona; ~$18/mês se passar do limite
+
+**Salva em:** `~/.ciromacielos/.env` como `export BUFFER_ACCESS_TOKEN="..."`
+**Formato esperado:** string opaca ~40 chars alfanuméricos (sem prefix tipo `sk_`)
+**Validação:**
+```bash
+curl -sS -o /dev/null -w "%{http_code}" \
+  "https://api.bufferapp.com/1/user.json?access_token=$TOKEN"
+# 200 = OK (retorna user.id + plan)
+# 403 = token inválido ou revogado
+# 429 = rate limited
+```
+
+**Conduzir o usuário (texto literal):**
+```
+📅 Buffer Access Token
+   What: personal token to schedule organic social posts (LinkedIn,
+         X, Instagram, Facebook, Threads, Bluesky) via Buffer's API.
+   Used by: ciromaciel-marketing → /publish → social handlers.
+   Cost: Free tier covers 3 channels + 10 scheduled posts each.
+         Paid from $6/mo/channel if you need more.
+
+   Why Buffer specifically: LinkedIn doesn't expose a stable API for
+   organic personal posts. Buffer is the least-bad aggregator for a
+   solo operator — one token covers 6+ networks. /publish still asks
+   approval per item; this token just makes the handoff a single
+   API call instead of "copy → paste in browser → click publish".
+
+   How to get it:
+   1. Open: https://publish.buffer.com/account/apps
+      (Login first if needed — same account where your channels are
+      connected. If you don't have an account: https://buffer.com →
+      sign up free, takes 1 min.)
+   2. Make sure your social channels are connected:
+      Account → Channels → "Connect a channel" for each network
+      you'll publish to (LinkedIn personal + company, X, IG, etc.).
+   3. Back on https://publish.buffer.com/account/apps:
+      Click "Create Access Token" (or similar — UI label may say
+      "Generate new token").
+      - Some accounts see it under "Developer" tab. If you can't find
+        it, the URL https://publish.buffer.com/developers/api also
+        leads there.
+   4. Name it "ciromacielOS-marketplace".
+   5. Copy the token immediately (you may or may not be able to view
+      it again — treat as one-shot).
+   6. Paste below.
+
+   Paste your token (or [s]kip / [q]uit):
+> _
+```
+
+Após user colar, **NUNCA ecoe o token inteiro**. Confirme com formato `xxxx...xxxx` (primeiros 4 + últimos 4 só). Valide via curl acima. Se 403, peça pra confirmar URL e regerar.
+
+Após validação OK, opcionalmente liste os canais conectados pra confirmar setup:
+```bash
+curl -sS "https://api.bufferapp.com/1/profiles.json?access_token=$TOKEN" \
+  | jq -r '.[] | "- \(.service): \(.formatted_username) (\(.id))"'
+```
+
+Mostre ao usuário:
+```
+✓ Buffer token validated. Channels connected:
+  - linkedin: Ciro Maciel (5a1b2c3d...)
+  - twitter: @ciromaciel (5e6f7a8b...)
+  - instagram: @ciromaciel.os (5c9d0e1f...)
+
+These are the channels /publish can target. To add more, go to
+Buffer → Channels → Connect, then re-run /setup verify.
+```
+
+Se nenhum canal conectado, avise: "Token works but you have 0 channels connected. /publish won't have anywhere to post — connect at least one at https://publish.buffer.com/channels."
 
 ---
 
