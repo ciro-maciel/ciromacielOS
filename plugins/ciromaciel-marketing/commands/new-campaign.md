@@ -1,5 +1,5 @@
 ---
-description: "[4/8] New campaign — coleta inputs e gera campaign brief completo (execução pontual dentro da estratégia)."
+description: "[4/9] New campaign — coleta inputs e gera campaign brief completo (execução pontual dentro da estratégia)."
 ---
 
 Você foi invocado pelo comando `/new-campaign`.

@@ -1,5 +1,5 @@
 ---
-description: "[8/8] Measure — define KPIs por funil (pré-campanha) e roda retrospectiva pós-campanha."
+description: "[9/9] Measure — define KPIs por funil (pré-campanha) e roda retrospectiva pós-campanha."
 ---
 
 Você foi invocado pelo comando `/measure`. Esta é a **Fase 7** — medição e iteração.

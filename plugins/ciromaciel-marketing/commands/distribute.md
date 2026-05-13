@@ -1,17 +1,19 @@
 ---
-description: "[6/8] Distribute — content calendar multi-canal + schedule + handoff para ferramentas externas."
+description: "[7/9] Distribute — content calendar multi-canal + schedule + handoff para ferramentas externas."
 ---
 
-Você foi invocado pelo comando `/distribute`. Esta é a **Fase 6** — distribuição.
+Você foi invocado pelo comando `/distribute`. Esta é a **Fase 7** — distribuição.
 
-Fluxo até aqui: `/discovery` → `/research` → `/strategy` → `/new-campaign` → `/execute` → **`/distribute`**.
+Fluxo: `/discovery` → `/research` → `/strategy` → `/new-campaign` → `/execute` → `/render` → **`/distribute`** → `/publish` → `/measure`.
 
 ## Pré-requisitos
 
 - `clients/<nome>/campaigns/<campaign>.md` (brief)
 - `clients/<nome>/campaigns/<campaign>-assets/` (assets gerados por `/execute`)
+- Se a campanha tem vídeo: `out.mp4` em cada `video/<slug>/` (produzido por `/render`)
 
 Se assets não existirem, pare e oriente a rodar `/execute` primeiro.
+Se algum vídeo está como `script.md` sem `out.mp4`, pare e oriente a rodar `/render` primeiro — não vale agendar publicação de vídeo que não existe ainda.
 
 ## Objetivo
 

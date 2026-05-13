@@ -1,12 +1,12 @@
 ---
-description: "[1/8] Discovery — intake estruturado de cliente novo (SaaS ou serviço). Produz intake.md."
+description: "[1/9] Discovery — intake estruturado de cliente novo (SaaS ou serviço). Produz intake.md."
 ---
 
 Você foi invocado pelo comando `/discovery`. Esta é a **Fase 1** do fluxo de agência.
 
 ## Objetivo
 
-Coletar informação suficiente sobre o cliente, oferta, mercado e contexto pra que as fases seguintes (`/research`, `/strategy`, `/execute`, `/distribute`, `/measure`) tenham base sólida. Sem isso, virou spray-and-pray.
+Coletar informação suficiente sobre o cliente, oferta, mercado e contexto pra que as fases seguintes (`/research`, `/strategy`, `/new-campaign`, `/execute`, `/render`, `/distribute`, `/publish`, `/measure`) tenham base sólida. Sem isso, virou spray-and-pray.
 
 ## Passo 1 — Identificar o cliente
 

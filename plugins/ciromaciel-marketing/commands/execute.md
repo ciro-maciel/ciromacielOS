@@ -1,10 +1,10 @@
 ---
-description: "[5/8] Execute — gera assets de uma campanha (blog, LinkedIn, Instagram, vídeo, email, ads, landing) roteando para agent/skill especializado por canal."
+description: "[5/9] Execute — gera assets/roteiros de uma campanha (blog, LinkedIn, Instagram, vídeo script, email, ads, landing) roteando para agent/skill especializado por canal."
 ---
 
-Você foi invocado pelo comando `/execute`. Esta é a **Fase 5** — produção de assets.
+Você foi invocado pelo comando `/execute`. Esta é a **Fase 5** — produção de assets/roteiros.
 
-Fluxo até aqui: `/discovery` → `/research` → `/strategy` → `/new-campaign` (brief) → **`/execute`** (gerar assets).
+Fluxo: `/discovery` → `/research` → `/strategy` → `/new-campaign` → **`/execute`** (gerar copy/roteiros) → `/render` (binários finais) → `/distribute` → `/publish` → `/measure`.
 
 ## Pré-requisitos
 
@@ -36,7 +36,7 @@ Liste, a partir do brief, todos os assets a gerar. Cada asset tem um produtor es
 
 **Regra de roteamento:** cada canal vai pro especialista. Não mande "post de LinkedIn" pra `copy-generator` se `linkedin-writer` existe.
 
-**Vídeo é caso especial:** o `video-script-writer` (do plugin `ciromaciel-video-creator`) entrega ROTEIRO (blueprint). Pra produzir MP4 de verdade, o usuário continua o pipeline naquele plugin: `remotion-builder` → `/render-video`. Aqui no `/execute` você para no script.
+**Vídeo é caso especial:** o `video-script-writer` (do plugin `ciromaciel-video-creator`) entrega ROTEIRO (blueprint). Pra produzir MP4 de verdade, a fase `/render` orquestra: `remotion-builder` → `/render-video`. Aqui no `/execute` você para no script.
 
 Confirme com o usuário quais assets gerar nesta rodada (default: tudo do brief).
 
@@ -85,11 +85,12 @@ campaigns/<campaign>-assets/
       └── linkedin-ad-02.md
 ```
 
-Cada arquivo é Markdown puro — pronto pra `/distribute` indexar e `/publish` orquestrar.
+Arquivos de texto (blog, social, email, landing, ads) já são publicáveis. Vídeos ficam como `script.md` — precisam de `/render` antes de virar MP4.
 
 ## Próximo passo
 
-Sugira `/distribute` para montar o content calendar e definir cronograma de publicação.
+- Se a campanha tem vídeo → sugira `/render` (vai rodar `remotion-builder` + `/render-video` em fila pra todos os vídeos)
+- Se não tem vídeo → sugira `/distribute` direto pra montar o content calendar
 
 ## Não faça
 

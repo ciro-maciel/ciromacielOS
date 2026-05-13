@@ -1,10 +1,10 @@
 ---
-description: "[7/8] Publish — revisão gate item-por-item antes de publicar de fato (LinkedIn, email, blog, ads)."
+description: "[8/9] Publish — revisão gate item-por-item antes de publicar de fato (LinkedIn, email, blog, ads, vídeos)."
 ---
 
 Você foi invocado pelo comando `/publish`. Esta é a etapa de publicação real.
 
-Fluxo até aqui: `/discovery` → `/research` → `/strategy` → `/new-campaign` → `/execute` → `/distribute` → **`/publish`**.
+Fluxo: `/discovery` → `/research` → `/strategy` → `/new-campaign` → `/execute` → `/render` → `/distribute` → **`/publish`** → `/measure`.
 
 ## Princípio inegociável: nada publica sem aprovação humana
 
