@@ -9,11 +9,19 @@ import {
 	Sequence,
 } from "remotion";
 import { BurnedCaption } from "../../shared/BurnedCaption";
+import { FitText } from "../../shared/FitText";
 import type {
 	LongformCardSequenceProps,
 	LongformCard,
 	LongformBrand,
 } from "./schema";
+
+/**
+ * Largura útil pra headlines no frame 16:9 (1920px) — 210px de padding/lado.
+ * FitText garante que nenhum texto grande sangre além disso. Margem generosa
+ * (zen aesthetic: whitespace é respiro, headline não encosta na borda).
+ */
+const HEADLINE_MAX_WIDTH = 1920 - 420;
 
 /**
  * LongformCardSequence — versão longform (5-25 min) do TypographicCardSequence.
@@ -577,16 +585,17 @@ const HeroLayout: React.FC<{
 		return (
 			<div style={center()}>
 				{card.lines.map((line, i) => (
-					<div
+					<FitText
 						key={i}
+						maxFontSize={line.sizePx ?? 110}
+						maxWidth={HEADLINE_MAX_WIDTH}
+						fontFamily={font}
+						fontWeight={line.weight ?? 950}
+						letterSpacing={line.tracking ?? tracking}
+						lineHeight={0.95}
+						textAlign="center"
+						color={line.color ?? fg}
 						style={{
-							fontFamily: font,
-							fontWeight: line.weight ?? 950,
-							fontSize: line.sizePx ?? 110,
-							letterSpacing: line.tracking ?? tracking,
-							lineHeight: 0.95,
-							textAlign: "center",
-							color: line.color ?? fg,
 							marginBottom: i < card.lines!.length - 1 ? 16 : 0,
 						}}
 					>
@@ -596,7 +605,7 @@ const HeroLayout: React.FC<{
 							accentColor={line.accentColor ?? accent}
 							color={line.color ?? fg}
 						/>
-					</div>
+					</FitText>
 				))}
 			</div>
 		);
@@ -611,16 +620,17 @@ const HeroLayout: React.FC<{
 					const accentWord =
 						accentTokens[i] ?? (i === 0 ? singleToken : undefined);
 					return (
-						<div
+						<FitText
 							key={i}
+							maxFontSize={160}
+							maxWidth={HEADLINE_MAX_WIDTH}
+							fontFamily={font}
+							fontWeight={950}
+							letterSpacing={tracking}
+							lineHeight={0.95}
+							textAlign="center"
+							color={fg}
 							style={{
-								fontFamily: font,
-								fontWeight: 950,
-								fontSize: 160,
-								letterSpacing: tracking,
-								lineHeight: 0.95,
-								textAlign: "center",
-								color: fg,
 								marginBottom: i < card.headlineLines!.length - 1 ? 16 : 0,
 							}}
 						>
@@ -630,7 +640,7 @@ const HeroLayout: React.FC<{
 								accentColor={accent}
 								color={fg}
 							/>
-						</div>
+						</FitText>
 					);
 				})}
 				{card.sub ? <SubBlock sub={card.sub} brand={brand} /> : null}
@@ -642,16 +652,15 @@ const HeroLayout: React.FC<{
 	if (obj) {
 		return (
 			<div style={center()}>
-				<div
-					style={{
-						fontFamily: obj.font ?? font,
-						fontWeight: obj.weight ?? 950,
-						fontSize: obj.sizePx ?? 120,
-						letterSpacing: obj.tracking ?? tracking,
-						lineHeight: 0.95,
-						textAlign: "center",
-						color: obj.color ?? fg,
-					}}
+				<FitText
+					maxFontSize={obj.sizePx ?? 120}
+					maxWidth={HEADLINE_MAX_WIDTH}
+					fontFamily={obj.font ?? font}
+					fontWeight={obj.weight ?? 950}
+					letterSpacing={obj.tracking ?? tracking}
+					lineHeight={0.95}
+					textAlign="center"
+					color={obj.color ?? fg}
 				>
 					<AccentText
 						text={obj.text}
@@ -659,7 +668,7 @@ const HeroLayout: React.FC<{
 						accentColor={obj.accentColor ?? accent}
 						color={obj.color ?? fg}
 					/>
-				</div>
+				</FitText>
 				{card.sub ? <SubBlock sub={card.sub} brand={brand} /> : null}
 			</div>
 		);
@@ -668,19 +677,17 @@ const HeroLayout: React.FC<{
 	if (card.title) {
 		return (
 			<div style={center()}>
-				<div
-					style={{
-						fontFamily: font,
-						fontWeight: card.titleWeight ?? 950,
-						fontSize: card.titleSize ?? 120,
-						letterSpacing: tracking,
-						lineHeight: 0.95,
-						textAlign: "center",
-						color: card.titleColor ?? fg,
-					}}
-				>
-					{card.title}
-				</div>
+				<FitText
+					text={card.title}
+					maxFontSize={card.titleSize ?? 120}
+					maxWidth={HEADLINE_MAX_WIDTH}
+					fontFamily={font}
+					fontWeight={card.titleWeight ?? 950}
+					letterSpacing={tracking}
+					lineHeight={0.95}
+					textAlign="center"
+					color={card.titleColor ?? fg}
+				/>
 				{card.sub ? <SubBlock sub={card.sub} brand={brand} /> : null}
 			</div>
 		);
@@ -711,21 +718,21 @@ const EyebrowTitleLayout: React.FC<{
 				/>
 			) : null}
 			{(card.headlineLines ?? []).map((text, i) => (
-				<div
+				<FitText
 					key={i}
+					text={text}
+					maxFontSize={140}
+					maxWidth={HEADLINE_MAX_WIDTH}
+					fontFamily={font}
+					fontWeight={950}
+					letterSpacing={tracking}
+					lineHeight={0.95}
+					textAlign="center"
+					color={fg}
 					style={{
-						fontFamily: font,
-						fontWeight: 950,
-						fontSize: 140,
-						letterSpacing: tracking,
-						lineHeight: 0.95,
-						textAlign: "center",
-						color: fg,
 						marginBottom: i < (card.headlineLines ?? []).length - 1 ? 12 : 0,
 					}}
-				>
-					{text}
-				</div>
+				/>
 			))}
 			{!card.headlineLines && getTextObj(card.headline) ? (
 				<HeadlineBlock
@@ -815,19 +822,18 @@ const AnchorLayout: React.FC<{
 				}}
 			/>
 			{card.title ? (
-				<div
-					style={{
-						fontFamily: font,
-						fontWeight: 950,
-						fontSize: 140,
-						letterSpacing: brand.trackingDisplay ?? "-0.04em",
-						lineHeight: 0.95,
-						color: fg,
-						marginBottom: 32,
-					}}
-				>
-					{card.title}
-				</div>
+				<FitText
+					text={card.title}
+					maxFontSize={140}
+					maxWidth={1920 - 240}
+					fontFamily={font}
+					fontWeight={950}
+					letterSpacing={brand.trackingDisplay ?? "-0.04em"}
+					lineHeight={0.95}
+					textAlign="left"
+					color={fg}
+					style={{ marginBottom: 32 }}
+				/>
 			) : null}
 			{card.sub ? (
 				<div
@@ -869,25 +875,27 @@ const SplitBinaryLayout: React.FC<{
 					hairlineColor={brand.border ?? "#E5E7EB"}
 				/>
 			) : null}
-			<div
+			<FitText
+				maxFontSize={split.sizePx ?? 140}
+				maxWidth={HEADLINE_MAX_WIDTH}
+				fontFamily={font}
+				fontWeight={split.weight ?? 950}
+				letterSpacing={split.tracking ?? "-0.04em"}
+				lineHeight={0.95}
+				textAlign="center"
+				color={fg}
 				style={{
 					display: "flex",
 					flexDirection: "row",
 					alignItems: "center",
 					justifyContent: "center",
 					gap: 64,
-					fontFamily: font,
-					fontWeight: split.weight ?? 950,
-					fontSize: split.sizePx ?? 140,
-					letterSpacing: split.tracking ?? "-0.04em",
-					color: fg,
-					lineHeight: 0.95,
 				}}
 			>
 				<span>{split.left}</span>
 				<span style={{ color: separatorColor }}>{separator}</span>
 				<span>{split.right}</span>
-			</div>
+			</FitText>
 		</div>
 	);
 };
@@ -962,21 +970,19 @@ const CtaLayout: React.FC<{
 	return (
 		<div style={center()}>
 			{(card.headlineLines ?? []).map((text, i) => (
-				<div
+				<FitText
 					key={i}
-					style={{
-						fontFamily: font,
-						fontWeight: 950,
-						fontSize: 180,
-						letterSpacing: brand.trackingHero ?? "-0.05em",
-						lineHeight: 0.95,
-						textAlign: "center",
-						color: fg,
-						marginBottom: 8,
-					}}
-				>
-					{text}
-				</div>
+					text={text}
+					maxFontSize={180}
+					maxWidth={HEADLINE_MAX_WIDTH}
+					fontFamily={font}
+					fontWeight={950}
+					letterSpacing={brand.trackingHero ?? "-0.05em"}
+					lineHeight={0.95}
+					textAlign="center"
+					color={fg}
+					style={{ marginBottom: 8 }}
+				/>
 			))}
 			{!card.headlineLines && card.headline ? (
 				<HeadlineBlock
@@ -1025,17 +1031,16 @@ const HeadlineBlock: React.FC<{
 	if (!obj) return null;
 	const font = brand.fontHeading ?? "Montserrat";
 	return (
-		<div
-			style={{
-				fontFamily: obj.font ?? font,
-				fontWeight: obj.weight ?? 950,
-				fontSize: obj.sizePx ?? 140,
-				letterSpacing: obj.tracking ?? brand.trackingDisplay ?? "-0.04em",
-				lineHeight: 0.95,
-				textAlign: "center",
-				color: obj.color ?? fg,
-				marginBottom: 32,
-			}}
+		<FitText
+			maxFontSize={obj.sizePx ?? 140}
+			maxWidth={HEADLINE_MAX_WIDTH}
+			fontFamily={obj.font ?? font}
+			fontWeight={obj.weight ?? 950}
+			letterSpacing={obj.tracking ?? brand.trackingDisplay ?? "-0.04em"}
+			lineHeight={0.95}
+			textAlign="center"
+			color={obj.color ?? fg}
+			style={{ marginBottom: 32 }}
 		>
 			<AccentText
 				text={obj.text}
@@ -1043,7 +1048,7 @@ const HeadlineBlock: React.FC<{
 				accentColor={obj.accentColor ?? accent}
 				color={obj.color ?? fg}
 			/>
-		</div>
+		</FitText>
 	);
 };
 
