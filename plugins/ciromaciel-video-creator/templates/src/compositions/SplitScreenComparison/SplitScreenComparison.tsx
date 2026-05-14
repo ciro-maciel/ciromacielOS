@@ -10,7 +10,17 @@ import {
 	spring,
 } from "remotion";
 import { BurnedCaption } from "../../shared/BurnedCaption";
+import { FitText } from "../../shared/FitText";
 import type { SplitScreenComparisonProps } from "./schema";
+
+// Layout geometry — kept in sync with the inline styles below. FitText needs
+// an explicit px maxWidth, so we derive each text slot's available width from
+// the video width instead of relying on % / flex (which FitText can't measure).
+const DIVIDER_WIDTH = 4;
+const PANE_PADDING = 64; // SplitPane padding, both sides
+const GRID_PADDING_X = 96; // bottom items area, both sides
+const GRID_GAP = 24;
+const GRID_FR = [1.2, 1, 1] as const; // ItemsGrid gridTemplateColumns
 
 /**
  * SplitScreenComparison — comparação visual lado-a-lado.
@@ -34,6 +44,20 @@ export const SplitScreenComparison: React.FC<SplitScreenComparisonProps> = ({
 }) => {
 	const { fps, width, height } = useVideoConfig();
 	const frame = useCurrentFrame();
+
+	// Usable text width per pane (flex:1 split, minus divider, minus padding).
+	const paneWidth = (width - DIVIDER_WIDTH) / 2;
+	const paneTextWidth = paneWidth - PANE_PADDING * 2;
+
+	// ItemsGrid column widths — must mirror gridTemplateColumns + gap below.
+	const gridInnerWidth = width - GRID_PADDING_X * 2;
+	const frTotal = GRID_FR[0] + GRID_FR[1] + GRID_FR[2];
+	const frUnit = (gridInnerWidth - GRID_GAP * 2) / frTotal;
+	const colWidths = GRID_FR.map((fr) => fr * frUnit) as [
+		number,
+		number,
+		number,
+	];
 
 	return (
 		<AbsoluteFill style={{ backgroundColor: brand.bgPrimary }}>
@@ -65,6 +89,7 @@ export const SplitScreenComparison: React.FC<SplitScreenComparisonProps> = ({
 					screenshot={leftScreenshot}
 					brand={brand}
 					side="left"
+					textWidth={paneTextWidth}
 				/>
 				<Divider brand={brand} />
 				<SplitPane
@@ -72,6 +97,7 @@ export const SplitScreenComparison: React.FC<SplitScreenComparisonProps> = ({
 					screenshot={rightScreenshot}
 					brand={brand}
 					side="right"
+					textWidth={paneTextWidth}
 				/>
 			</div>
 
@@ -94,6 +120,7 @@ export const SplitScreenComparison: React.FC<SplitScreenComparisonProps> = ({
 					brand={brand}
 					fps={fps}
 					frame={frame}
+					colWidths={colWidths}
 				/>
 			</div>
 
@@ -112,7 +139,8 @@ const SplitPane: React.FC<{
 	screenshot: string | null;
 	brand: SplitScreenComparisonProps["brand"];
 	side: "left" | "right";
-}> = ({ label, screenshot, brand, side }) => {
+	textWidth: number;
+}> = ({ label, screenshot, brand, side, textWidth }) => {
 	return (
 		<div
 			style={{
@@ -129,17 +157,16 @@ const SplitPane: React.FC<{
 						: brand.bgPrimary,
 			}}
 		>
-			<div
-				style={{
-					fontFamily: brand.fontHeading,
-					fontSize: 48,
-					fontWeight: 700,
-					color: side === "right" ? brand.accentPrimary : brand.textSecondary,
-					marginBottom: 32,
-				}}
-			>
-				{label}
-			</div>
+			<FitText
+				text={label}
+				maxFontSize={48}
+				maxWidth={textWidth}
+				fontFamily={brand.fontHeading}
+				fontWeight={700}
+				color={side === "right" ? brand.accentPrimary : brand.textSecondary}
+				lineHeight={1}
+				style={{ marginBottom: 32 }}
+			/>
 			{screenshot ? (
 				<Img
 					src={staticFile(screenshot)}
@@ -194,20 +221,26 @@ const ItemsGrid: React.FC<{
 	brand: SplitScreenComparisonProps["brand"];
 	fps: number;
 	frame: number;
-}> = ({ items, leftLabel, rightLabel, brand, fps, frame }) => {
+	colWidths: [number, number, number];
+}> = ({ items, leftLabel, rightLabel, brand, fps, frame, colWidths }) => {
 	return (
 		<div
 			style={{
 				display: "grid",
-				gridTemplateColumns: "1.2fr 1fr 1fr",
-				gap: 24,
+				gridTemplateColumns: `${GRID_FR[0]}fr ${GRID_FR[1]}fr ${GRID_FR[2]}fr`,
+				gap: GRID_GAP,
 				alignItems: "center",
 			}}
 		>
 			{/* Header row */}
 			<div />
-			<HeaderCell label={leftLabel} brand={brand} muted />
-			<HeaderCell label={rightLabel} brand={brand} accent />
+			<HeaderCell label={leftLabel} brand={brand} maxWidth={colWidths[1]} muted />
+			<HeaderCell
+				label={rightLabel}
+				brand={brand}
+				maxWidth={colWidths[2]}
+				accent
+			/>
 
 			{/* Items */}
 			{items.map((item, i) => (
@@ -217,6 +250,7 @@ const ItemsGrid: React.FC<{
 					brand={brand}
 					fps={fps}
 					frame={frame}
+					colWidths={colWidths}
 				/>
 			))}
 		</div>
@@ -226,24 +260,27 @@ const ItemsGrid: React.FC<{
 const HeaderCell: React.FC<{
 	label: string;
 	brand: SplitScreenComparisonProps["brand"];
+	maxWidth: number;
 	muted?: boolean;
 	accent?: boolean;
-}> = ({ label, brand, muted, accent }) => {
+}> = ({ label, brand, maxWidth, muted, accent }) => {
 	return (
-		<div
-			style={{
-				fontFamily: brand.fontHeading,
-				fontSize: 28,
-				fontWeight: 600,
-				color: accent
-					? brand.accentPrimary
-					: muted
-						? brand.textSecondary
-						: brand.textPrimary,
-				textAlign: "center",
-			}}
-		>
-			{label}
+		<div style={{ display: "flex", justifyContent: "center" }}>
+			<FitText
+				text={label}
+				maxFontSize={28}
+				maxWidth={maxWidth}
+				fontFamily={brand.fontHeading}
+				fontWeight={600}
+				color={
+					accent
+						? brand.accentPrimary
+						: muted
+							? brand.textSecondary
+							: brand.textPrimary
+				}
+				lineHeight={1}
+			/>
 		</div>
 	);
 };
@@ -253,7 +290,8 @@ const ItemRow: React.FC<{
 	brand: SplitScreenComparisonProps["brand"];
 	fps: number;
 	frame: number;
-}> = ({ item, brand, fps, frame }) => {
+	colWidths: [number, number, number];
+}> = ({ item, brand, fps, frame, colWidths }) => {
 	const appearFrame = item.atSec * fps;
 	const isVisible = frame >= appearFrame;
 
@@ -274,39 +312,41 @@ const ItemRow: React.FC<{
 
 	return (
 		<div style={rowStyle}>
-			<div
-				style={{
-					fontFamily: brand.fontBody,
-					fontSize: 22,
-					fontWeight: 500,
-					color: brand.textSecondary,
-				}}
-			>
-				{item.label}
+			<div style={{ display: "flex", justifyContent: "flex-start" }}>
+				<FitText
+					text={item.label}
+					maxFontSize={22}
+					maxWidth={colWidths[0]}
+					fontFamily={brand.fontBody}
+					fontWeight={500}
+					color={brand.textSecondary}
+					lineHeight={1}
+					textAlign="left"
+				/>
 			</div>
-			<div
-				style={{
-					fontFamily: brand.fontData,
-					fontSize: 28,
-					fontWeight: 500,
-					color: brand.textPrimary,
-					textAlign: "center",
-					fontVariantNumeric: "tabular-nums",
-				}}
-			>
-				{item.left}
+			<div style={{ display: "flex", justifyContent: "center" }}>
+				<FitText
+					text={item.left}
+					maxFontSize={28}
+					maxWidth={colWidths[1]}
+					fontFamily={brand.fontData}
+					fontWeight={500}
+					color={brand.textPrimary}
+					lineHeight={1}
+					style={{ fontVariantNumeric: "tabular-nums" }}
+				/>
 			</div>
-			<div
-				style={{
-					fontFamily: brand.fontData,
-					fontSize: 28,
-					fontWeight: 500,
-					color: brand.accentPrimary,
-					textAlign: "center",
-					fontVariantNumeric: "tabular-nums",
-				}}
-			>
-				{item.right}
+			<div style={{ display: "flex", justifyContent: "center" }}>
+				<FitText
+					text={item.right}
+					maxFontSize={28}
+					maxWidth={colWidths[2]}
+					fontFamily={brand.fontData}
+					fontWeight={500}
+					color={brand.accentPrimary}
+					lineHeight={1}
+					style={{ fontVariantNumeric: "tabular-nums" }}
+				/>
 			</div>
 		</div>
 	);

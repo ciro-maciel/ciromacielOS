@@ -125,6 +125,26 @@ Estrutura final do diretório do vídeo antes do render:
     └── (todos provided)
 ```
 
+### 4a — Stage dos assets em `public/<slug>/` (OBRIGATÓRIO)
+
+> **Por que obrigatório:** os templates resolvem áudio e imagens via `staticFile(path)`, que aponta pra `templates/public/`. Se o stage fosse num path compartilhado (ex: `public/audio.mp3`), dois renders simultâneos sobrescreveriam o áudio um do outro no meio do processo — **race condition** que produz vídeo mudo ou com áudio trocado. Stage por slug isola cada render: `public/<slug>/` é único, então renders concorrentes nunca colidem.
+
+Copie os arquivos runtime do vídeo pra um diretório próprio dentro de `public/`:
+
+```bash
+cd <path-to-plugin>/templates
+mkdir -p "public/<slug>"
+cp <video-dir>/audio.mp3 "public/<slug>/audio.mp3"
+cp -R <video-dir>/assets "public/<slug>/assets"
+# music.mp3 etc, se houver
+```
+
+Onde `<video-dir>` = `clients/<nome>/campaigns/<campaign>-assets/video/<slug>/`.
+
+**Os paths no `props.json` já vêm prefixados com `<slug>/`** (o `remotion-builder` gera assim) — ex: `"voPath": "<slug>/audio.mp3"`, `"leftScreenshot": "<slug>/assets/x.png"`. Se você encontrar um `props.json` antigo com paths sem prefixo (`"audio.mp3"`), prefixe-os com `<slug>/` antes do render e avise no report.
+
+### 4b — Executar o render
+
 Execute o render no diretório de templates do plugin:
 
 ```bash
@@ -137,8 +157,8 @@ npm install --silent
 npx remotion render \
   src/Root.tsx \
   <CompositionId> \
-  <slug>/out.mp4 \
-  --props=<slug>/props.json \
+  <video-dir>/out.mp4 \
+  --props=<video-dir>/props.json \
   --concurrency=2
 ```
 
@@ -148,6 +168,16 @@ Onde:
 - `--concurrency=2` evita burnar máquina (ajustável)
 
 **Render rodando em background.** Tempo esperado: 2-3x duração do vídeo no M1 Mac (ex: vídeo 75s → render 2-4min).
+
+### 4c — Limpeza pós-render
+
+Depois do render terminar com sucesso (após Passo 5 validar o MP4), remova o stage pra não acumular lixo em `public/`:
+
+```bash
+rm -rf "<path-to-plugin>/templates/public/<slug>"
+```
+
+Se o render falhou, **mantenha** o stage pra debug.
 
 Monitore stdout. Se erro, reporte:
 - Falta de TSX template → "Template X não existe em templates/src/compositions/. Crie ou troque template no props.json."
@@ -222,5 +252,5 @@ Default = ElevenLabs. Override por `provider` no audio-script.json:
 - Não pule a validação ffprobe — MP4 corrompido vai pro publish silenciosamente
 - Não modifique TSX dos templates inline — se template está errado, fix no template e regenera
 - Não chame APIs sem confirmar env var setada — falha com mensagem útil em vez de stack trace
-- Não rode `npx remotion render` em paralelo no mesmo cliente — Remotion pode conflitar em cache de output
+- Renders em paralelo são seguros DESDE QUE cada um tenha feito o stage em `public/<slug>/` (Passo 4a) e o `out.mp4` vá pro `<video-dir>` de cada vídeo. Nunca compartilhe um path de stage entre renders simultâneos — foi exatamente a race condition que deixava o áudio mudo no meio do vídeo.
 - Não substitua o `remotion-builder` — se props.json não existe, sai e aponta pra ele

@@ -173,6 +173,10 @@ const captionSchema = z.object({
 	text: z.string(),
 });
 
+// Asset paths are consumed via staticFile() (resolves from templates/public/).
+// Convention: prefix every path with the video slug — "<slug>/audio.mp3",
+// "<slug>/assets/x.png". /render-video stages files into public/<slug>/ so
+// concurrent renders never collide on a shared path. See remotion-builder.md.
 const audioSchema = z.object({
 	voPath: z.string().nullable().default(null),
 	musicPath: z.string().nullable().default(null),

@@ -217,7 +217,7 @@ Componente lê via fallback chains. Builder pode escrever a palette com qualquer
       { "fromSec": 0, "toSec": 3, "text": "Tem 8 coisas que ninguém larga." },
       { "fromSec": 13, "toSec": 16, "text": "Quiz na bio." }
     ],
-    "audio": { "voPath": "audio.mp3", "musicPath": null, "duckMusicUnderVo": true }
+    "audio": { "voPath": "<slug>/audio.mp3", "musicPath": null, "duckMusicUnderVo": true }
   }
 }
 ```

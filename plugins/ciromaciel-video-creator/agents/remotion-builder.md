@@ -41,7 +41,7 @@ Se nenhum template cobre o que o roteiro precisa, **halt e reporte** — não im
    - Textos do roteiro (caption burned-in)
    - Cores do visual-brand
    - Timing dos beats (cada beat → frame range)
-   - Refs pros assets
+   - Refs pros assets — **todo path de `staticFile()` (`voPath`, `musicPath`, `leftScreenshot`, screenshots de cards etc.) deve vir prefixado com `<slug>/`**. Ex: `"voPath": "<slug>/audio.mp3"`, `"leftScreenshot": "<slug>/assets/mosaic-ui.png"`. Veja "Convenção de paths" abaixo.
 6. **Gera `audio-script.json`** — entrada pro `tts-generator` skill: linha-a-linha do VO com timing.
 7. **Cria estrutura no sandbox/cliente:**
 
@@ -77,8 +77,8 @@ clients/<nome>/campaigns/<campaign>-assets/video/<slug>/
   "props": {
     "leftLabel": "Mosaic",
     "rightLabel": "FinFlow",
-    "leftScreenshot": "assets/mosaic-ui.png",
-    "rightScreenshot": "assets/finflow-ui.png",
+    "leftScreenshot": "<slug>/assets/mosaic-ui.png",
+    "rightScreenshot": "<slug>/assets/finflow-ui.png",
     "items": [
       { "label": "Setup", "left": "6 weeks", "right": "5 days", "atSec": 30 },
       { "label": "Pricing", "left": "Contact sales", "right": "$499/mo public", "atSec": 35 }
@@ -95,13 +95,23 @@ clients/<nome>/campaigns/<campaign>-assets/video/<slug>/
       { "fromSec": 3, "toSec": 12, "text": "CFO sênior + FP&A analyst + workflow de 3 pessoas" }
     ],
     "audio": {
-      "voPath": "audio.mp3",
+      "voPath": "<slug>/audio.mp3",
       "musicPath": null,
       "duckMusicUnderVo": true
     }
   }
 }
 ```
+
+## Convenção de paths — `staticFile()` é prefixado por slug
+
+Todo path de asset no `props.json` (`voPath`, `musicPath`, `leftScreenshot`, `rightScreenshot`, screenshots de cards) é consumido pelos templates via `staticFile(path)`, que resolve a partir de `templates/public/`.
+
+**Prefixe todos esses paths com `<slug>/`** — ex: `<slug>/audio.mp3`, `<slug>/assets/x.png`.
+
+Por quê: no `/render-video` Passo 4a os arquivos runtime do vídeo são copiados pra `templates/public/<slug>/` (diretório único por vídeo). Se os paths não fossem prefixados, todo vídeo competiria pelo mesmo `public/audio.mp3` — e dois renders simultâneos sobrescreveriam o áudio um do outro no meio do processo (race condition: vídeo sai mudo ou com áudio trocado). O prefixo por slug isola cada render.
+
+Você só **emite os paths prefixados** no `props.json`; o stage físico em `public/<slug>/` é feito pelo `/render-video`, não por você.
 
 ## Schema do audio-script.json (input pro tts-generator)
 

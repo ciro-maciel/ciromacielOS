@@ -175,7 +175,7 @@ O youtube-01 props.json foi escrito num formato híbrido SplitScreenComparison (
     "captions": [
       { "fromSec": 0, "toSec": 6, "text": "DECLARADA ≠ OBEDECIDA" }
     ],
-    "audio": { "voPath": "audio.mp3", "musicPath": null, "duckMusicUnderVo": true },
+    "audio": { "voPath": "<slug>/audio.mp3", "musicPath": null, "duckMusicUnderVo": true },
     "showChapterMarkers": true,
     "durationSec": 870
   }

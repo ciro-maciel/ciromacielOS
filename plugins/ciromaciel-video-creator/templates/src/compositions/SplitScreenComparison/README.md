@@ -28,7 +28,7 @@ Template Remotion pra comparação visual lado-a-lado (X vs Y) com items animado
 {
   leftLabel: string;            // ex: "Mosaic"
   rightLabel: string;           // ex: "FinFlow"
-  leftScreenshot: string|null;  // path relativo a public/ — ex: "assets/mosaic-ui.png"
+  leftScreenshot: string|null;  // staticFile path, prefixado por slug — ex: "<slug>/assets/mosaic-ui.png"
   rightScreenshot: string|null; // idem
   items: Array<{
     label: string;              // ex: "Setup"
@@ -43,8 +43,8 @@ Template Remotion pra comparação visual lado-a-lado (X vs Y) com items animado
     text: string;               // caption burned-in (max ~80 chars por linha pra legibilidade mobile)
   }>;
   audio: {
-    voPath: string|null;        // path do MP3 do voice-over (gerado pelo tts-generator)
-    musicPath: string|null;     // path da música de fundo (opcional)
+    voPath: string|null;        // staticFile path do VO, prefixado por slug — ex: "<slug>/audio.mp3"
+    musicPath: string|null;     // staticFile path da música de fundo (opcional), idem prefixo
     duckMusicUnderVo: boolean;  // se true, abaixa música quando VO toca (default true)
   };
 }
@@ -104,8 +104,8 @@ Defaults realistas pra preview no Remotion Studio (`npm start`). NUNCA renderize
   "props": {
     "leftLabel": "Mosaic",
     "rightLabel": "FinFlow",
-    "leftScreenshot": "assets/mosaic-ui.png",
-    "rightScreenshot": "assets/finflow-ui.png",
+    "leftScreenshot": "<slug>/assets/mosaic-ui.png",
+    "rightScreenshot": "<slug>/assets/finflow-ui.png",
     "items": [
       { "label": "Setup",   "left": "6 weeks",       "right": "5 days",          "atSec": 30 },
       { "label": "Pricing", "left": "Contact sales", "right": "$499/mo public",  "atSec": 35 },
@@ -129,7 +129,7 @@ Defaults realistas pra preview no Remotion Studio (`npm start`). NUNCA renderize
       { "fromSec": 60, "toSec": 75, "text": "Comment VS for the full comparison." }
     ],
     "audio": {
-      "voPath": "audio.mp3",
+      "voPath": "<slug>/audio.mp3",
       "musicPath": null,
       "duckMusicUnderVo": true
     }
