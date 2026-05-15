@@ -95,66 +95,122 @@ Após publicar (ou pular), edite `<campaign>-calendar.md`:
 
 A tabela define como publicar em cada canal. Verifique disponibilidade antes de tentar — não invente integração.
 
-### Social orgânico via Buffer (LinkedIn pessoal/empresa, X/Twitter, Instagram, Facebook, Threads, Bluesky)
+### Social orgânico via Buffer (LinkedIn pessoal/empresa, X/Twitter, Instagram, Facebook, Threads, Bluesky, TikTok, YouTube)
 
 **Default path** pra todo orgânico. Buffer é o agregador configurado em `/setup` (Bloco C).
 
-#### Setup once por sessão — descobrir profiles
+**API:** Buffer migrou de REST v1 para GraphQL. Endpoint único:
+- `POST https://api.buffer.com/graphql`
+- Header: `Authorization: Bearer $BUFFER_ACCESS_TOKEN`
+- Header: `Content-Type: application/json`
 
-Na primeira publicação orgânica da sessão, liste os profiles conectados:
+O endpoint antigo (`api.bufferapp.com/1/...?access_token=`) retorna 401 "OIDC tokens are not accepted for direct API access" — não use.
+
+#### Setup once por sessão — descobrir channels
+
+Na primeira publicação orgânica da sessão, leia o `organization_id` de `~/.ciromacielos/config.yaml` → `buffer.organization_id` e liste os channels conectados via GraphQL:
 
 ```bash
-curl -sS "https://api.bufferapp.com/1/profiles.json?access_token=$BUFFER_ACCESS_TOKEN" \
-  | jq -r '.[] | "- \(.service): \(.formatted_username) → id=\(.id)"'
+curl -sS -X POST https://api.buffer.com/graphql \
+  -H "Authorization: Bearer $BUFFER_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ account { currentOrganization { id channels { id service name displayName isDisconnected } } } }"}' \
+  | jq -r '.data.account.currentOrganization.channels[] | "- \(.service): \(.displayName) → id=\(.id) \(if .isDisconnected then \"[DISCONNECTED]\" else \"\" end)"'
 ```
 
-Guarde o mapa `service → profile_id` em memória durante a sessão (não persista). Se um canal previsto pelo calendar não aparece nos profiles, **halt e pergunte ao usuário** se quer pular ou conectar o canal no Buffer antes.
+Guarde o mapa `service → channelId` em memória durante a sessão (não persista). Se um canal previsto pelo calendar não aparece nos channels, ou aparece como `isDisconnected: true`, **halt e pergunte ao usuário** se quer pular ou reconectar o canal no Buffer antes.
 
 #### Para CADA item orgânico aprovado
 
-1. **Mapeie canal → profile_id** usando o mapa acima
+1. **Mapeie canal → channelId** usando o mapa acima
 2. **Renderize o texto final** (substitua qualquer `{{var}}` que ficou no asset — se sobrar variável não-resolvida, halt)
-3. **Decida agora vs agendar**:
-   - Aprovação `[a]` (publicar agora) → POST sem `scheduled_at`, com `now=true`
-   - Aprovação `[s]` (agendar) → POST com `scheduled_at=<unix timestamp da hora do calendar>`
-4. **Chame a API**:
+3. **Determine `schedulingType`** — depende do serviço:
+   - `automatic` (Buffer publica nativo via API da rede): LinkedIn, X/Twitter, Facebook Page, Threads, Bluesky, Mastodon, Instagram Business
+   - `notification` (Buffer manda push pro celular do usuário, que publica manual): Instagram pessoal, TikTok não-eligível, YouTube Shorts/longform — qualquer caso onde a rede não permite auto-publish
+   - Quando em dúvida, comece com `automatic` — se a API retornar `RestProxyError` indicando que a conexão não suporta, faça halt e instrua o usuário a reconectar como Business / habilitar autoposting.
+4. **Determine `dueAt`** (ISO 8601 UTC):
+   - Aprovação `[a]` (publicar agora) → use o timestamp atual em UTC (ex: `2026-05-15T14:32:00Z`). Buffer enfileira e publica no próximo worker tick (~30s).
+   - Aprovação `[s]` (agendar) → use o ISO 8601 da hora do calendar, convertido pra UTC.
+   - Buffer requer `dueAt` em UTC com sufixo `Z`. Não passe timestamp Unix.
+5. **Monte a mutation**:
 
 ```bash
-# Publicar agora
-curl -sS -X POST https://api.bufferapp.com/1/updates/create.json \
-  -d "access_token=$BUFFER_ACCESS_TOKEN" \
-  -d "profile_ids[]=$PROFILE_ID" \
-  -d "text=$ENCODED_TEXT" \
-  -d "now=true"
+# Variáveis
+TEXT_JSON=$(jq -Rs . <<< "$POST_TEXT")        # escapa quebras de linha e aspas
+DUE_AT="2026-05-15T14:32:00Z"                  # ISO 8601 UTC
+CHANNEL_ID="6a0438b5090476fb9914cd91"
+SCHEDULING="automatic"                          # ou "notification"
 
-# OU agendar pra hora X
-curl -sS -X POST https://api.bufferapp.com/1/updates/create.json \
-  -d "access_token=$BUFFER_ACCESS_TOKEN" \
-  -d "profile_ids[]=$PROFILE_ID" \
-  -d "text=$ENCODED_TEXT" \
-  -d "scheduled_at=$UNIX_TIMESTAMP"
+MUTATION=$(cat <<EOF
+mutation CreatePost(\$input: CreatePostInput!) {
+  createPost(input: \$input) {
+    __typename
+    ... on PostActionSuccess { post { id status dueAt } }
+    ... on InvalidInputError { message }
+    ... on LimitReachedError { message }
+    ... on UnauthorizedError { message }
+    ... on NotFoundError { message }
+    ... on RestProxyError { message code link }
+    ... on UnexpectedError { message }
+  }
+}
+EOF
+)
+
+curl -sS -X POST https://api.buffer.com/graphql \
+  -H "Authorization: Bearer $BUFFER_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n \
+    --arg q "$MUTATION" \
+    --arg ch "$CHANNEL_ID" \
+    --arg t "$POST_TEXT" \
+    --arg d "$DUE_AT" \
+    --arg s "$SCHEDULING" \
+    '{query:$q, variables:{input:{channelId:$ch, text:$t, dueAt:$d, schedulingType:$s, assets:[], tagIds:[]}}}')"
 ```
 
-Para posts com **mídia** (carrossel IG, imagem LinkedIn, vídeo orgânico):
-- Adicione `-d "media[link]=https://..."` ou `-d "media[photo]=https://..."`
-- Para vídeo (Reel/Short/post de LinkedIn) — Buffer aceita URL pública do MP4. Antes do POST, faça upload do `out.mp4` pra um host público temporário (S3, R2, ou Buffer's media endpoint se MCP disponível) e use a URL retornada. Se upload não rolar, fallback manual.
+Notas críticas do schema:
+- `assets: []` é **obrigatório** (NON_NULL list) — passe array vazio pra post text-only, não omita.
+- `channelId` e `schedulingType` são NON_NULL — sempre presentes.
+- `text` é opcional no schema, mas obrigatório na prática pra todo canal exceto post-só-mídia.
+- `metadata: { linkedin: {...}, twitter: {...}, ... }` só é necessário pra coisas avançadas (LinkedIn poll, X thread, IG carrossel ordering). Pra post simples, omita.
 
-5. **Parse a resposta**. Status 200 + `success: true` → ok. Captura `update.id` e `update.created_at` pra registrar.
-6. **Update calendar**:
-   - `published <timestamp> via Buffer (update_id: <id>)` se foi `now=true`
-   - `scheduled <timestamp> via Buffer (update_id: <id>)` se foi `scheduled_at`
+Para posts com **mídia** (carrossel IG, imagem LinkedIn, vídeo orgânico), preencha `assets`:
 
-#### Limites e falhas comuns
+```graphql
+assets: [
+  { image: { url: "https://...", alt: "..." } }
+  # ou { video: { url: "https://...", thumbnailUrl: "..." } }
+  # ou { document: { url: "https://...", title: "..." } }
+  # ou { link: { url: "https://...", title: "...", description: "..." } }
+]
+```
 
-| Erro | Resposta | Ação |
-|------|----------|------|
-| 403 invalid token | `code: 1003` | Halt sessão. Rode `/setup rotate buffer_access_token`. |
-| Profile não conectado | `code: 1006` | Halt esse item, marque skipped + motivo. Pede pro usuário conectar no Buffer. |
-| Free tier limite (10 posts agendados/canal) | `code: 1042` | Halt, sugere fallback manual ou upgrade Buffer. |
-| Rate limit | 429 | Espera 60s + retry 1 vez. Se falhar de novo, halt. |
-| Texto excede limite do canal (X = 280, LinkedIn = 3000, etc.) | `code: 1027` | Halt item, mostra qual canal/limite, manda voltar pro `/execute` regenerar mais curto. |
+Para vídeo (Reel/Short/post de LinkedIn) — Buffer aceita URL pública do MP4. Antes da mutation, faça upload do `out.mp4` pra um host público temporário (S3, R2) e use a URL retornada. Se upload não rolar, fallback manual.
 
-**Nunca retry silencioso em loop.** 1 retry no 429, no resto: halt + reporte.
+6. **Parse a resposta**. Cheque `data.createPost.__typename`:
+   - `PostActionSuccess` → ok. Captura `post.id` e `post.dueAt` pra registrar.
+   - Qualquer outro variant → erro estruturado, ver tabela abaixo.
+7. **Update calendar**:
+   - `published <timestamp> via Buffer (post_id: <id>)` se `dueAt` foi "agora"
+   - `scheduled <dueAt> via Buffer (post_id: <id>)` se foi futuro
+
+#### Erros — variants do `PostActionPayload`
+
+A API GraphQL retorna HTTP 200 mesmo em erro de domínio; o que importa é `__typename` da resposta. Top-level HTTP/network erros (401, 5xx) também podem ocorrer.
+
+| `__typename` ou HTTP | Significado | Ação |
+|---------------------|-------------|------|
+| `UnauthorizedError` ou HTTP 401 | Token inválido/expirado | Halt sessão. Rode `/setup rotate buffer_access_token`. |
+| `NotFoundError` | `channelId` desconhecido pra esse org | Halt esse item, marque skipped. Confirme o mapa channelId (re-roda discovery). |
+| `LimitReachedError` | Free tier estourou (10 posts agendados/canal, etc.) | Halt, sugere fallback manual ou upgrade Buffer. |
+| `InvalidInputError` | Payload malformado — `dueAt` no passado, texto vazio, asset URL inválida, texto excede limite da rede (X=280, LinkedIn=3000, Threads=500, Bluesky=300) | Halt item. Leia `message` — se for limite de chars, volta pro `/execute` regenerar. |
+| `RestProxyError` | A rede social rejeitou (LinkedIn API down, Instagram nega connection, etc.). Tem `code` e às vezes `link` pra ajuda. | Halt item. Mostra `message` + `code` pro usuário decidir. Não retry automático — pode ser content policy. |
+| `UnexpectedError` | Buffer interno | Espera 60s + retry 1 vez. Se falhar de novo, halt. |
+| HTTP 429 | Rate limit do GraphQL gateway | Espera 60s + retry 1 vez. Se falhar de novo, halt. |
+| HTTP 5xx | Buffer fora do ar | Espera 60s + retry 1 vez. Halt depois. |
+
+**Nunca retry silencioso em loop.** 1 retry pra 429/5xx/UnexpectedError. Resto: halt + reporte.
 
 #### Fallback manual (sem Buffer)
 
