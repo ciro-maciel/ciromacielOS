@@ -1,7 +1,7 @@
 {
   "name": "ciromaciel-setup",
-  "version": "0.1.0",
-  "description": "Wizard global de configuração do marketplace ciromacielOS. Coleta API keys, cria diretórios, persiste config em ~/.ciromacielos/ pra uso em qualquer projeto. Resumable (continua do ponto onde parou).",
+  "version": "0.2.0",
+  "description": "Wizard global de configuração do marketplace ciromacielOS. Coleta API keys (ElevenLabs TTS, Google Cloud YouTube Data API, Buffer), cria diretórios, persiste config em ~/.ciromacielos/ pra uso em qualquer projeto. Resumable (continua do ponto onde parou).",
   "author": {
     "name": "Ciro Maciel"
   },

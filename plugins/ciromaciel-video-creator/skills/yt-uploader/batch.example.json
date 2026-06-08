@@ -1,0 +1,33 @@
+[
+  {
+    "id": "youtube-01",
+    "video": "/absolute/path/to/quiz-ancora-de-carreira-assets/video/youtube-01/out.mp4",
+    "title": "Por que 70% dos profissionais executam o objetivo errado da própria âncora",
+    "description": "Schein passou 12 anos provando que sua âncora declarada raramente é a âncora obedecida.\n\nQuiz em 8 minutos: https://careerthesis.com/quiz-ancora\n\n#âncoradecarreira #carreira #careerthesis",
+    "tags": "âncora de carreira,career anchor,schein,carreira,senior IC,tech career,careerthesis",
+    "category": 27,
+    "privacy": "public",
+    "thumbnail": "/absolute/path/to/quiz-ancora-de-carreira-assets/video/youtube-01/thumbnail.png"
+  },
+  {
+    "id": "shorts-01",
+    "video": "/absolute/path/to/quiz-ancora-de-carreira-assets/video/shorts-01/out.mp4",
+    "title": "As 8 âncoras de carreira em 60 segundos #Shorts",
+    "description": "Schein descobriu 8 coisas que ninguém larga, mesmo quando larga tudo. Listadas em 60 segundos.\n\nQual a sua? Quiz em https://careerthesis.com/quiz-ancora\n\n#âncoradecarreira #carreira #shorts",
+    "tags": "âncora de carreira,career anchor,schein,carreira,shorts,careerthesis",
+    "category": 27,
+    "privacy": "public",
+    "thumbnail": "/absolute/path/to/quiz-ancora-de-carreira-assets/video/shorts-01/thumbnail.png"
+  },
+  {
+    "id": "shorts-04-scheduled",
+    "video": "/absolute/path/to/quiz-ancora-de-carreira-assets/video/shorts-04/out.mp4",
+    "title": "Como usar âncora pra dizer NÃO a uma oferta de trabalho #Shorts",
+    "description": "Exemplo: você é âncora de Autonomia. Recebe oferta CLT R$ 30k. Os números fazem sentido. A âncora não.\n\nDiagnóstico em 8 minutos: https://careerthesis.com/quiz-ancora",
+    "tags": "âncora de carreira,carreira,decisão de carreira,senior IC,shorts,careerthesis",
+    "category": 27,
+    "privacy": "private",
+    "publish_at": "2026-06-18T21:00:00Z",
+    "thumbnail": "/absolute/path/to/quiz-ancora-de-carreira-assets/video/shorts-04/thumbnail.png"
+  }
+]

@@ -95,7 +95,70 @@ Após publicar (ou pular), edite `<campaign>-calendar.md`:
 
 A tabela define como publicar em cada canal. Verifique disponibilidade antes de tentar — não invente integração.
 
-### Social orgânico via Buffer (LinkedIn pessoal/empresa, X/Twitter, Instagram, Facebook, Threads, Bluesky, TikTok, YouTube)
+### YouTube — via skill `yt-uploader` do plugin video-creator (NÃO Buffer)
+
+YouTube **não usa Buffer**. O caminho oficial é o skill `yt-uploader` em `ciromaciel-video-creator`, que sobe via YouTube Data API v3 direto (multipart resumable, custom thumbnail, scheduled visibility).
+
+**Pré-requisitos** (validar antes de tentar publicar):
+- OAuth credentials em `~/.ciromacielos/google-cloud/yt-upload-credentials.json` (config em `/setup` Bloco B item `google_cloud_yt_credentials`)
+- Token cacheado em `~/.ciromacielos/google-cloud/yt-upload-token.json` (criado no first-run via OAuth flow)
+- Venv Python em `~/.ciromacielos/google-cloud/venv/` com `google-api-python-client` instalado
+
+Se faltarem, halt e oriente a rodar `/setup` antes.
+
+**Para CADA item YouTube aprovado:**
+
+1. **Extrair metadata** do asset markdown — title, description, tags, category (default `27` = Education), privacy (default `public`)
+2. **Preparar thumbnail (opcional mas recomendado)**:
+   - Se existe `<slug>/thumbnail-1280x720.svg` (longform) → renderizar pra PNG via `rsvg-convert -w 1280 -h 720 <svg> -o <png>`
+   - Pra Shorts → extrair primeiro frame visual com ffmpeg: `ffmpeg -ss 1.0 -i out.mp4 -frames:v 1 -q:v 2 thumbnail.png -y`
+3. **Decidir privacy + agendamento**:
+   - Aprovação `[a]` (publicar agora) → `privacy=public`, sem `publish_at`
+   - Aprovação `[s]` (agendar) → `privacy=private` + `publish_at=<ISO 8601 UTC do calendar>` (YT auto-flippa pra public na hora)
+4. **Invocar o skill** (preferível pra single item):
+   ```bash
+   ~/.ciromacielos/google-cloud/venv/bin/python \
+     <path-to-plugin>/skills/yt-uploader/yt-upload.py \
+     --video <abs-path>/out.mp4 \
+     --title "..." --description "..." --tags "..." \
+     --category 27 --privacy public
+   ```
+   Saída JSON: `{"id":"<video_id>", "url":"https://www.youtube.com/watch?v=...", "status":{...}, "title":"..."}`
+5. **Setar thumbnail** (se preparado):
+   ```bash
+   ~/.ciromacielos/google-cloud/venv/bin/python \
+     <path-to-plugin>/skills/yt-uploader/yt-thumbnail.py \
+     --video-id <video_id> --image <abs-path>/thumbnail.png
+   ```
+6. **Atualizar calendar**:
+   - `published <timestamp> via YT Data API (video_id: <id>) → <url>` se `privacy=public`
+   - `scheduled <publish_at> via YT Data API (video_id: <id>) → <url>` se `privacy=private + publish_at`
+
+**Para BATCH (múltiplos vídeos na mesma sessão)** — use o orquestrador `yt-batch.py` em vez de N invocations:
+1. Compor `batch.json` com array de items (schema em [batch.example.json](../../ciromaciel-video-creator/skills/yt-uploader/batch.example.json))
+2. Rodar: `~/.ciromacielos/google-cloud/venv/bin/python <plugin>/skills/yt-uploader/yt-batch.py --batch /path/batch.json`
+3. Lê `batch.results.json` pra atualizar calendar
+4. **Idempotente** — re-rodar pula items já com `response.id` (state recovery após falha)
+
+**Quota YT Data API** = 10k units/dia (reset 00:00 PST). `videos.insert` = 1600 units, `thumbnails.set` = 50 units. Cabe trivialmente 6 uploads/dia. Se estourar, halt e orienta esperar reset OU solicitar quota increase no console.
+
+**Erros comuns:**
+
+| Erro | Causa | Ação |
+|------|-------|------|
+| `Access blocked: app has not completed verification` | Email não está em Test Users do OAuth consent screen | Halt sessão. User adiciona email em https://console.cloud.google.com/apis/credentials/consent → Test users. |
+| `quotaExceeded` | 10k units estouradas | Halt. Esperar reset 00:00 PST. Itens restantes ficam `pending`. |
+| `invalid_grant` | Token expirou e refresh falhou | Halt. Apaga token cacheado, refaz OAuth via `/setup rotate google_cloud_yt`. |
+| `forbidden` no thumbnails.set | Canal sem verification (phone) | Halt setting thumbnail. Upload do video em si fica OK. User verifica canal em youtube.com/verify. |
+| `videoChartNotFound` | Categoria inválida pra região | Mudar pra 27 (Education) — universalmente aceita. |
+
+**Caveats por surface:**
+- **Longform:** custom thumbnail aparece em todos os surfaces (search, suggested, channel page, watch page)
+- **Shorts:** custom thumbnail aparece SÓ em web search + channel page. App mobile sempre mostra video direto no Shorts player. Esperado.
+
+---
+
+### Social orgânico via Buffer (LinkedIn pessoal/empresa, X/Twitter, Instagram, Facebook, Threads, Bluesky, TikTok)
 
 **Default path** pra todo orgânico. Buffer é o agregador configurado em `/setup` (Bloco C).
 

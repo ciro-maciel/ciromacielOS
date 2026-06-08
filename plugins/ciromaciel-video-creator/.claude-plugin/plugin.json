@@ -1,9 +1,9 @@
 {
   "name": "ciromaciel-video-creator",
-  "version": "0.1.0",
-  "description": "Pipeline completo de produção de vídeo via Remotion (React) + TTS. Roteiro → props → render → MP4. Atende marketing, recruiting (employer branding) e career (personal brand).",
+  "version": "0.2.0",
+  "description": "Pipeline completo de produção de vídeo via Remotion (React) + TTS + publicação no YouTube via Data API v3. Roteiro → props → render → MP4 → upload YT (single ou batch, com thumbnails). Atende marketing, recruiting (employer branding) e career (personal brand).",
   "author": {
     "name": "Ciro Maciel"
   },
-  "keywords": ["video", "remotion", "react", "tts", "reels", "shorts", "linkedin-video", "youtube", "riligar"]
+  "keywords": ["video", "remotion", "react", "tts", "reels", "shorts", "linkedin-video", "youtube", "yt-data-api", "publishing", "riligar"]
 }

@@ -109,18 +109,21 @@ Itere por estes itens em ordem. Por item, siga "Protocolo por item" abaixo.
 
 > **Por que NÃO tem `marketplace_path` nem `sandboxes_path`:** plugins instalados via `/plugin marketplace add` são gerenciados pelo Claude Code runtime — você nunca lida com o path direto. `marketplace_path` só existiria pra um DEV do marketplace (que tem o repo clonado), e mesmo assim nenhum command precisa dele globalmente (cada command resolve paths via plugin runtime). Sandboxes são conceito interno de teste dos plugins, não de end user.
 
-### Bloco B — video-creator (Remotion + TTS)
+### Bloco B — video-creator (Remotion + TTS + YouTube publish)
 
 | ID | Item | Quem consome | Obtain at |
 |----|------|--------------|-----------|
 | `elevenlabs_api_key` | TTS via API | `/render-video` command + `tts-generator` skill | https://elevenlabs.io/app/settings/api-keys |
 | `elevenlabs_voice_id` | Voice ID padrão | mesmo | https://elevenlabs.io/app/voice-library |
+| `google_cloud_yt_credentials` | OAuth Client ID (Desktop app) pra YouTube Data API v3 | `yt-uploader` skill + `/publish` (rota YouTube) | https://console.cloud.google.com/apis/credentials |
 
-### Bloco C — marketing-publish (agendamento social)
+### Bloco C — marketing-publish (agendamento social orgânico, exceto YouTube)
 
 | ID | Item | Quem consome | Obtain at |
 |----|------|--------------|-----------|
-| `buffer_access_token` | Access token pessoal do Buffer (orgânico: LinkedIn, X, IG, FB) | `/publish` command (marketing) | https://publish.buffer.com/account/apps |
+| `buffer_access_token` | Access token pessoal do Buffer (orgânico: LinkedIn, X, IG, FB, Threads, Bluesky, TikTok — **NÃO YouTube**) | `/publish` command (marketing) | https://publish.buffer.com/account/apps |
+
+> **YouTube não está aqui:** YT vai via `google_cloud_yt_credentials` (Bloco B) + skill `yt-uploader` (plugin video-creator), NÃO via Buffer. Razão: Buffer rejeita catbox/hosts anônimos com `Content-Length: 0`, e o flow notification não auto-publica. YT Data API direto é o caminho automatizado real.
 
 ### O que NÃO está na manifest (e por quê)
 
@@ -344,6 +347,114 @@ curl -sS -o /dev/null -w "%{http_code}" \
 ```
 
 Após user colar, validate via API (ver Validação acima). Se 404, mostra: "Voice ID not found OR your API key doesn't have access. Try again or [d] for default."
+
+---
+
+### B.3 — `google_cloud_yt_credentials`
+
+**O que é:** OAuth Client ID (type Desktop app) de um projeto Google Cloud com **YouTube Data API v3** ativada. Usado pelo skill `yt-uploader` (plugin video-creator) e pelo handler de YouTube do `/publish` (plugin marketing) pra subir vídeos diretamente no YouTube com metadata completo (title, description, tags, category, scheduled visibility, custom thumbnail).
+**Por que precisa:** sem isso, publicar no YouTube cai pra: (a) upload manual via YouTube Studio (~5min por video, sem automação) OU (b) Buffer (que não funciona pra YT — exige host externo com Content-Length, e o flow notification é só lembrete). YouTube Data API v3 direto é o único caminho automatizado.
+**Por que NÃO Buffer:** Buffer rejeita catbox.moe/anonymous hosts com `Video URL returned zero content-length`. Discoverable só com S3/R2/GitHub Releases (overhead) e mesmo assim `schedulingType=notification` é só push pro mobile app — não auto-publica. YT Data API direto = simpler + durable + sem dependência de host.
+**Cost reference (2026):**
+  - YouTube Data API v3: **FREE**, com quota de 10.000 units/dia
+  - `videos.insert` (upload) = 1600 units → 6 uploads/dia free
+  - `thumbnails.set` = 50 units → 200 thumbnails/dia free
+  - Reset 00:00 PST = 04:00 BRT
+  - Quota increase: gratuito, mas exige justificativa + ~3 dias review
+
+**Salva em:** JSON em `~/.ciromacielos/google-cloud/yt-upload-credentials.json` (chmod 600). Token OAuth gerado no first-run vai pra `~/.ciromacielos/google-cloud/yt-upload-token.json` (chmod 600, refresh automático).
+**Formato esperado:** JSON com chave top-level `"installed"` (NÃO `"web"`):
+```json
+{
+  "installed": {
+    "client_id": "...apps.googleusercontent.com",
+    "project_id": "...",
+    "client_secret": "GOCSPX-...",
+    "redirect_uris": ["http://localhost"]
+  }
+}
+```
+**Validação (após salvar):** primeiro `yt-upload.py` run dispara OAuth flow (browser dance). Se token gerado e cacheado com sucesso → OK. Se "Access blocked: app has not completed verification" → user esqueceu de adicionar email como Test User (ver step 4 abaixo).
+
+**Pré-requisito Python (uma vez):**
+```bash
+python3 -m venv ~/.ciromacielos/google-cloud/venv
+~/.ciromacielos/google-cloud/venv/bin/pip install google-api-python-client google-auth-oauthlib google-auth-httplib2
+```
+PEP 668 bloqueia pip global no macOS recente — sempre use venv dedicado.
+
+**Conduzir o usuário (texto literal):**
+```
+🎬 Google Cloud — YouTube Data API credentials
+   What: OAuth Client ID pra publicar vídeos automaticamente no YouTube.
+   Used by: ciromaciel-video-creator → yt-uploader skill;
+            ciromaciel-marketing → /publish (rota YouTube).
+   Cost: API é FREE. Quota: 10k units/dia = 6 uploads/dia.
+
+   IMPORTANTE — Buffer não funciona pra YouTube. Esse é o único
+   caminho automatizado real. Sem essa key, publicar no YT vira
+   upload manual no YouTube Studio (5min por video, sem scheduling
+   via API).
+
+   Como obter (10-15 min, one-time):
+
+   1. Cria projeto no Google Cloud Console
+      https://console.cloud.google.com/projectcreate
+      - Project name: "careerthesis-yt" (ou similar — único pra esse uso)
+      - Click CREATE
+      - Espera ~30s pra ele aparecer
+
+   2. Ativa a YouTube Data API v3 nesse projeto
+      https://console.cloud.google.com/apis/library/youtube.googleapis.com
+      - Confirma que está no projeto correto (canto superior esquerdo)
+      - Click ENABLE
+      - Espera ~10s
+
+   3. Configura OAuth consent screen (User type: External, modo Testing)
+      https://console.cloud.google.com/apis/credentials/consent
+      - User Type: External → CREATE
+      - App information:
+        - App name: "careerthesis-yt" (qualquer)
+        - User support email: TEU EMAIL Google
+        - Developer contact: TEU EMAIL Google
+      - Scopes: pula (CONTINUE) — o script pede scopes dinamicamente
+      - Test users: + ADD USERS → adiciona o email da conta Google dona
+        do canal YouTube target (AGORA — sem isso, próximo passo bloqueia)
+      - SAVE AND CONTINUE até finalizar
+      - Status final: "Testing" (NÃO publicar — youtube.upload é
+        restricted scope, exige Google verification formal, overhead)
+
+   4. Cria OAuth Client ID type Desktop app
+      https://console.cloud.google.com/apis/credentials
+      - + CREATE CREDENTIALS → OAuth client ID
+      - Application type: **Desktop app**
+      - Name: "ciromacielOS-yt-uploader"
+      - CREATE
+      - Modal abre com Client ID + Client Secret + botão DOWNLOAD JSON
+      - Click DOWNLOAD JSON — salva em ~/Downloads/
+
+   5. Cola o conteúdo do JSON aqui (ou me passa o path):
+      cat ~/Downloads/client_secret_*.json
+
+   Cola o JSON inteiro (ou [s]kip / [q]uit):
+> _
+```
+
+Após user colar:
+1. Valida estrutura JSON (deve ter chave `installed.client_id`, `installed.client_secret`, `installed.project_id`)
+2. Salva em `~/.ciromacielos/google-cloud/yt-upload-credentials.json` (chmod 600)
+3. Apaga qualquer token antigo (`rm -f ~/.ciromacielos/google-cloud/yt-upload-token.json`) pra forçar re-OAuth
+4. Cria venv Python se ainda não existe
+5. Avisa que primeira invocation do `yt-uploader` vai disparar OAuth flow (browser dance) — mostra URL pro user abrir manualmente (não tenta `webbrowser.open()` automático pq Bash sem TTY trava silenciosamente)
+
+**Gotchas (do real run em 2026-05-15):**
+
+| Gotcha | Sintoma | Fix |
+|--------|---------|-----|
+| Project_id errado no JSON | OAuth funciona mas vídeos vão pro lugar errado / quota errada | Verificar `project_id` no JSON antes de salvar — bate com o projeto criado no step 1 |
+| Email não em Test Users | "Access blocked: app careerthesis has not completed verification. Error 403: access_denied" no consent screen do browser | Volta no console, adiciona email em Test users, refresh OAuth URL |
+| Silent webbrowser.open fail | Script trava sem mostrar URL no terminal | `yt-upload.py` usa `open_browser=False` + `authorization_prompt_message` — URL aparece no stdout pro user abrir manualmente |
+| PEP 668 pip global bloqueado | `pip install google-api-python-client` falha com "externally managed environment" | Usa venv dedicado em `~/.ciromacielos/google-cloud/venv/`, sempre |
 
 ---
 

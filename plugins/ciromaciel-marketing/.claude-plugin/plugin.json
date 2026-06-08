@@ -1,7 +1,7 @@
 {
   "name": "ciromaciel-marketing",
-  "version": "0.2.0",
-  "description": "Fluxo completo de agência de marketing: discovery, research, strategy, campaign, execute, distribute, measure. Suporta SaaS e serviços.",
+  "version": "0.3.0",
+  "description": "Fluxo completo de agência de marketing: discovery, research, strategy, campaign, execute, distribute, measure, publish. Buffer GraphQL pra LinkedIn/X/IG/FB/Threads/Bluesky/TikTok; YouTube via Data API direto (skill yt-uploader do video-creator). Suporta SaaS e serviços.",
   "author": {
     "name": "Ciro Maciel"
   },
